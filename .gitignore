@@ -1,0 +1,13 @@
+# API KEYS
+.env
+
+# draft notebooks
+notebooks/data_extraction-draft.ipynb
+notebooks/data_cleaning.ipynb
+notebooks/data_extraction.ipynb
+notebooks/data_extraction2.ipynb
+
+# old
+*old.md
+*old.py
+*old.ipynb

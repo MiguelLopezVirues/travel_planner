@@ -1,0 +1,144 @@
+,duration,price,price_currency,stops,departure,arrival,company,self_transfer,fare_isChangeAllowed,fare_isPartiallyChangeable,fare_isCancellationAllowed,fare_isPartiallyRefundable,score,origin_airport,destination_airport
+0,185,167,€,0,2024-11-13 17:10:00,2024-11-13 20:15:00,Ryanair,False,False,False,False,False,0.999,Madrid,Berlin Brandenburg
+1,185,277,€,0,2024-11-13 07:50:00,2024-11-13 10:55:00,Iberia Express,False,False,False,False,False,0.642656,Madrid,Berlin Brandenburg
+2,280,211,€,1,2024-11-13 13:00:00,2024-11-13 17:40:00,KLM,False,False,False,False,False,0.601672,Madrid,Berlin Brandenburg
+3,185,258,€,0,2024-11-13 20:05:00,2024-11-13 23:10:00,Iberia Express,False,False,False,False,False,0.521972,Madrid,Berlin Brandenburg
+4,185,265,€,0,2024-11-13 20:05:00,2024-11-13 23:10:00,Iberia,False,False,False,False,False,0.513911,Madrid,Berlin Brandenburg
+5,185,284,€,0,2024-11-13 07:50:00,2024-11-13 10:55:00,Iberia,False,False,False,False,False,0.462763,Madrid,Berlin Brandenburg
+6,280,221,€,1,2024-11-13 11:00:00,2024-11-13 15:40:00,KLM,False,False,False,False,False,0.449382,Madrid,Berlin Brandenburg
+7,305,211,€,1,2024-11-13 06:00:00,2024-11-13 11:05:00,KLM,False,False,False,False,False,0.401451,Madrid,Berlin Brandenburg
+8,185,308,€,0,2024-11-13 07:50:00,2024-11-13 10:55:00,Vueling Airlines,False,False,False,False,False,0.397402,Madrid,Berlin Brandenburg
+9,185,450,€,0,2024-11-13 15:55:00,2024-11-13 19:00:00,Iberia Express,False,False,False,False,False,0.380786,Madrid,Berlin Brandenburg
+10,290,241,€,1,2024-11-13 10:05:00,2024-11-13 14:55:00,SWISS,False,False,False,False,False,0.379964,Madrid,Berlin Brandenburg
+11,310,239,€,1,2024-11-13 12:35:00,2024-11-13 17:45:00,Brussels Airlines,False,False,False,False,False,0.373909,Madrid,Berlin Brandenburg
+12,185,466,€,0,2024-11-13 15:55:00,2024-11-13 19:00:00,Iberia,False,False,False,False,False,0.366879,Madrid,Berlin Brandenburg
+13,375,185,€,1,2024-11-13 07:50:00,2024-11-13 14:05:00,Ryanair,False,False,False,False,False,0.352402,Madrid,Berlin Brandenburg
+14,320,230,€,1,2024-11-13 06:00:00,2024-11-13 11:20:00,Air France,False,False,False,False,False,0.348053,Madrid,Berlin Brandenburg
+15,305,239,€,1,2024-11-13 16:50:00,2024-11-13 21:55:00,KLM,False,False,False,False,False,0.344673,Madrid,Berlin Brandenburg
+16,420,201,€,1,2024-11-13 07:05:00,2024-11-13 14:05:00,Iberia Express,False,False,False,False,False,0.323516,Madrid,Berlin Brandenburg
+17,380,254,€,1,2024-11-13 07:05:00,2024-11-13 13:25:00,Air Europa,False,False,False,False,False,0.28663,Madrid,Berlin Brandenburg
+18,420,217,€,1,2024-11-13 07:05:00,2024-11-13 14:05:00,Iberia,False,False,False,False,False,0.284102,Madrid,Berlin Brandenburg
+19,275,298,€,1,2024-11-13 07:25:00,2024-11-13 12:00:00,Lufthansa,False,False,False,False,False,0.278701,Madrid,Berlin Brandenburg
+20,270,313,€,1,2024-11-13 08:25:00,2024-11-13 12:55:00,Lufthansa,False,False,False,False,False,0.270473,Madrid,Berlin Brandenburg
+21,285,313,€,1,2024-11-13 06:10:00,2024-11-13 10:55:00,Lufthansa,False,False,False,False,False,0.257848,Madrid,Berlin Brandenburg
+22,280,328,€,1,2024-11-13 06:25:00,2024-11-13 11:05:00,Brussels Airlines,False,False,False,False,False,0.253426,Madrid,Berlin Brandenburg
+23,375,233,€,1,2024-11-13 05:50:00,2024-11-13 12:05:00,ITA Airways,False,False,False,False,False,0.246783,Madrid,Berlin Brandenburg
+24,355,238,€,1,2024-11-13 05:50:00,2024-11-13 11:45:00,ITA Airways,False,False,False,False,False,0.24544,Madrid,Berlin Brandenburg
+25,310,323,€,1,2024-11-13 13:45:00,2024-11-13 18:55:00,Lufthansa,False,False,False,False,False,0.245353,Madrid,Berlin Brandenburg
+26,685,133,€,1,2024-11-13 22:35:00,2024-11-14 10:00:00,Vueling Airlines,False,False,False,False,False,0.245153,Madrid,Berlin Brandenburg
+27,285,361,€,1,2024-11-13 17:35:00,2024-11-13 22:20:00,Brussels Airlines,False,False,False,False,False,0.238275,Madrid,Berlin Brandenburg
+28,285,362,€,1,2024-11-13 10:00:00,2024-11-13 14:45:00,Air France,False,False,False,False,False,0.237781,Madrid,Berlin Brandenburg
+29,415,254,€,1,2024-11-13 15:00:00,2024-11-13 21:55:00,Air Europa,False,False,False,False,False,0.232392,Madrid,Berlin Brandenburg
+30,365,298,€,1,2024-11-13 12:05:00,2024-11-13 18:10:00,Lufthansa,False,False,False,False,False,0.225795,Madrid,Berlin Brandenburg
+31,330,349,€,1,2024-11-13 16:55:00,2024-11-13 22:25:00,Lufthansa,False,False,False,False,False,0.212845,Madrid,Berlin Brandenburg
+32,370,313,€,1,2024-11-13 13:45:00,2024-11-13 19:55:00,Lufthansa,False,False,False,False,False,0.21161,Madrid,Berlin Brandenburg
+33,355,342,€,1,2024-11-13 12:25:00,2024-11-13 18:20:00,Air France,False,False,False,False,False,0.202074,Madrid,Berlin Brandenburg
+34,535,254,€,1,2024-11-13 13:00:00,2024-11-13 21:55:00,Air Europa,False,False,False,False,False,0.180242,Madrid,Berlin Brandenburg
+35,285,502,€,1,2024-11-13 17:55:00,2024-11-13 22:40:00,Air France,False,False,False,False,False,0.171401,Madrid,Berlin Brandenburg
+36,380,382,€,1,2024-11-13 16:20:00,2024-11-13 22:40:00,Air France,False,False,False,False,False,0.168986,Madrid,Berlin Brandenburg
+37,380,405,€,1,2024-11-13 07:05:00,2024-11-13 13:25:00,Air Europa,False,False,False,False,False,0.15922,Madrid,Berlin Brandenburg
+38,680,242,€,1,2024-11-13 06:25:00,2024-11-13 17:45:00,Brussels Airlines,False,False,False,False,False,0.149419,Madrid,Berlin Brandenburg
+39,385,437,€,2,2024-11-13 13:45:00,2024-11-13 20:10:00,Lufthansa,False,False,False,False,False,0.145858,Madrid,Berlin Brandenburg
+40,635,297,€,1,2024-11-13 12:05:00,2024-11-13 22:40:00,Lufthansa,False,False,False,False,False,0.130191,Madrid,Berlin Brandenburg
+41,350,599,€,1,2024-11-13 15:00:00,2024-11-13 20:50:00,Air Europa,False,False,False,False,False,0.116859,Madrid,Berlin Brandenburg
+42,445,481,€,2,2024-11-13 12:05:00,2024-11-13 19:30:00,Lufthansa,False,False,False,False,False,0.114577,Madrid,Berlin Brandenburg
+43,410,544,€,2,2024-11-13 12:05:00,2024-11-13 18:55:00,Austrian Airlines,False,False,False,False,False,0.10985,Madrid,Berlin Brandenburg
+44,500,457,€,1,2024-11-13 06:55:00,2024-11-13 15:15:00,British Airways,False,False,False,False,False,0.10735,Madrid,Berlin Brandenburg
+45,450,553,€,2,2024-11-13 07:25:00,2024-11-13 14:55:00,Lufthansa,False,False,False,False,False,0.098593,Madrid,Berlin Brandenburg
+46,325,769,€,1,2024-11-13 13:25:00,2024-11-13 18:50:00,British Airways,False,False,False,False,False,0.09806,Madrid,Berlin Brandenburg
+47,500,517,€,1,2024-11-13 13:25:00,2024-11-13 21:45:00,British Airways,False,False,False,False,False,0.094876,Madrid,Berlin Brandenburg
+48,610,429,€,1,2024-11-13 08:40:00,2024-11-13 18:50:00,Aer Lingus,False,False,False,False,False,0.093638,Madrid,Berlin Brandenburg
+49,370,747,€,1,2024-11-13 06:55:00,2024-11-13 13:05:00,British Airways,False,False,False,False,False,0.088681,Madrid,Berlin Brandenburg
+50,500,562,€,1,2024-11-13 06:55:00,2024-11-13 15:15:00,Iberia,False,False,False,False,False,0.087183,Madrid,Berlin Brandenburg
+51,610,480,€,2,2024-11-13 06:10:00,2024-11-13 16:20:00,Austrian Airlines,False,False,False,False,False,0.083754,Madrid,Berlin Brandenburg
+52,605,498,€,1,2024-11-13 07:45:00,2024-11-13 17:50:00,Iberia,False,False,False,False,False,0.081382,Madrid,Berlin Brandenburg
+53,605,498,€,1,2024-11-13 07:45:00,2024-11-13 17:50:00,British Airways,False,False,False,False,False,0.081374,Madrid,Berlin Brandenburg
+54,325,940,€,1,2024-11-13 13:25:00,2024-11-13 18:50:00,Iberia,False,False,False,False,False,0.080224,Madrid,Berlin Brandenburg
+55,500,616,€,1,2024-11-13 13:25:00,2024-11-13 21:45:00,Iberia,False,False,False,False,False,0.07962,Madrid,Berlin Brandenburg
+56,1335,233,€,1,2024-11-13 19:35:00,2024-11-14 17:50:00,SWISS,False,False,False,False,False,0.078815,Madrid,Berlin Brandenburg
+57,535,585,€,1,2024-11-13 08:55:00,2024-11-13 17:50:00,British Airways,False,False,False,False,False,0.078342,Madrid,Berlin Brandenburg
+58,535,590,€,1,2024-11-13 08:55:00,2024-11-13 17:50:00,Iberia,False,False,False,False,False,0.077656,Madrid,Berlin Brandenburg
+59,420,752,€,2,2024-11-13 07:25:00,2024-11-13 14:25:00,Austrian Airlines,False,False,False,False,False,0.077562,Madrid,Berlin Brandenburg
+60,690,463,€,2,2024-11-13 07:25:00,2024-11-13 18:55:00,Austrian Airlines,False,False,False,False,False,0.076692,Madrid,Berlin Brandenburg
+61,525,612,€,1,2024-11-13 09:05:00,2024-11-13 17:50:00,British Airways,False,False,False,False,False,0.076234,Madrid,Berlin Brandenburg
+62,610,534,€,2,2024-11-13 12:05:00,2024-11-13 22:15:00,Austrian Airlines,False,False,False,False,False,0.075233,Madrid,Berlin Brandenburg
+63,525,627,€,1,2024-11-13 09:05:00,2024-11-13 17:50:00,Iberia,False,False,False,False,False,0.074492,Madrid,Berlin Brandenburg
+64,405,828,€,1,2024-11-13 09:05:00,2024-11-13 15:50:00,British Airways,False,False,False,False,False,0.073089,Madrid,Berlin Brandenburg
+65,370,909,€,1,2024-11-13 15:50:00,2024-11-13 22:00:00,British Airways,False,False,False,False,False,0.072871,Madrid,Berlin Brandenburg
+66,370,940,€,1,2024-11-13 06:55:00,2024-11-13 13:05:00,Iberia,False,False,False,False,False,0.070467,Madrid,Berlin Brandenburg
+67,485,719,€,1,2024-11-13 07:45:00,2024-11-13 15:50:00,British Airways,False,False,False,False,False,0.070252,Madrid,Berlin Brandenburg
+68,575,612,€,1,2024-11-13 12:05:00,2024-11-13 21:40:00,Turkish Airlines,False,False,False,False,False,0.069723,Madrid,Berlin Brandenburg
+69,590,616,€,1,2024-11-13 11:55:00,2024-11-13 21:45:00,Iberia,False,False,False,False,False,0.067468,Madrid,Berlin Brandenburg
+70,415,887,€,1,2024-11-13 15:05:00,2024-11-13 22:00:00,British Airways,False,False,False,False,False,0.066588,Madrid,Berlin Brandenburg
+71,685,562,€,1,2024-11-13 22:35:00,2024-11-14 10:00:00,Iberia,False,False,False,False,False,0.063652,Madrid,Berlin Brandenburg
+72,370,1049,€,1,2024-11-13 10:35:00,2024-11-13 16:45:00,British Airways,False,False,False,False,False,0.063155,Madrid,Berlin Brandenburg
+73,370,1051,€,1,2024-11-13 12:40:00,2024-11-13 18:50:00,British Airways,False,False,False,False,False,0.063028,Madrid,Berlin Brandenburg
+74,370,1097,€,1,2024-11-13 15:50:00,2024-11-13 22:00:00,Iberia,False,False,False,False,False,0.060397,Madrid,Berlin Brandenburg
+75,405,1019,€,1,2024-11-13 09:05:00,2024-11-13 15:50:00,Iberia,False,False,False,False,False,0.059364,Madrid,Berlin Brandenburg
+76,485,889,€,1,2024-11-13 07:45:00,2024-11-13 15:50:00,Iberia,False,False,False,False,False,0.056865,Madrid,Berlin Brandenburg
+77,415,1051,€,1,2024-11-13 11:55:00,2024-11-13 18:50:00,British Airways,False,False,False,False,False,0.056193,Madrid,Berlin Brandenburg
+78,530,855,€,2,2024-11-13 10:20:00,2024-11-13 19:10:00,TAP Air Portugal,False,False,False,False,False,0.054118,Madrid,Berlin Brandenburg
+79,415,1097,€,1,2024-11-13 15:05:00,2024-11-13 22:00:00,Iberia,False,False,False,False,False,0.053848,Madrid,Berlin Brandenburg
+80,1435,323,€,2,2024-11-13 19:35:00,2024-11-14 19:30:00,SWISS,False,False,False,False,False,0.052998,Madrid,Berlin Brandenburg
+81,825,572,€,1,2024-11-13 18:25:00,2024-11-14 08:10:00,Lufthansa,False,False,False,False,False,0.051955,Madrid,Berlin Brandenburg
+82,370,1302,€,1,2024-11-13 10:35:00,2024-11-13 16:45:00,Iberia,False,False,False,False,False,0.050876,Madrid,Berlin Brandenburg
+83,1145,422,€,1,2024-11-13 15:40:00,2024-11-14 10:45:00,LOT,False,False,False,False,False,0.050762,Madrid,Berlin Brandenburg
+84,495,1030,€,2,2024-11-13 06:10:00,2024-11-13 14:25:00,Austrian Airlines,False,False,False,False,False,0.048186,Madrid,Berlin Brandenburg
+85,545,948,€,1,2024-11-13 12:40:00,2024-11-13 21:45:00,British Airways,False,False,False,False,False,0.047417,Madrid,Berlin Brandenburg
+86,1300,425,€,1,2024-11-13 13:05:00,2024-11-14 10:45:00,Aegean Airlines,False,False,False,False,False,0.04438,Madrid,Berlin Brandenburg
+87,590,962,€,1,2024-11-13 11:55:00,2024-11-13 21:45:00,British Airways,False,False,False,False,False,0.043188,Madrid,Berlin Brandenburg
+88,1035,554,€,2,2024-11-13 16:55:00,2024-11-14 10:10:00,Lufthansa,False,False,False,False,False,0.042795,Madrid,Berlin Brandenburg
+89,740,779,€,2,2024-11-13 10:20:00,2024-11-13 22:40:00,TAP Air Portugal,False,False,False,False,False,0.042518,Madrid,Berlin Brandenburg
+90,1495,386,€,1,2024-11-13 08:40:00,2024-11-14 09:35:00,Aer Lingus,False,False,False,False,False,0.042493,Madrid,Berlin Brandenburg
+91,510,1139,€,2,2024-11-13 13:45:00,2024-11-13 22:15:00,Austrian Airlines,False,False,False,False,False,0.042191,Madrid,Berlin Brandenburg
+92,955,612,€,1,2024-11-13 17:55:00,2024-11-14 09:50:00,Turkish Airlines,False,False,False,False,False,0.04198,Madrid,Berlin Brandenburg
+93,655,937,€,1,2024-11-13 09:35:00,2024-11-13 20:30:00,Iberia,False,False,False,False,False,0.039915,Madrid,Berlin Brandenburg
+94,1100,562,€,1,2024-11-13 16:45:00,2024-11-14 11:05:00,British Airways,False,False,False,False,False,0.039625,Madrid,Berlin Brandenburg
+95,1095,568,€,1,2024-11-13 14:25:00,2024-11-14 08:40:00,Air Serbia,False,False,False,False,False,0.039451,Madrid,Berlin Brandenburg
+96,975,647,€,2,2024-11-13 16:55:00,2024-11-14 09:10:00,Lufthansa,False,False,False,False,False,0.038893,Madrid,Berlin Brandenburg
+97,1055,599,€,1,2024-11-13 17:30:00,2024-11-14 11:05:00,British Airways,False,False,False,False,False,0.038787,Madrid,Berlin Brandenburg
+98,670,962,€,1,2024-11-13 10:35:00,2024-11-13 21:45:00,British Airways,False,False,False,False,False,0.038031,Madrid,Berlin Brandenburg
+99,1155,562,€,1,2024-11-13 15:50:00,2024-11-14 11:05:00,British Airways,False,False,False,False,False,0.037738,Madrid,Berlin Brandenburg
+100,1365,480,€,2,2024-11-13 13:45:00,2024-11-14 12:30:00,Austrian Airlines,False,False,False,False,False,0.037428,Madrid,Berlin Brandenburg
+101,1065,627,€,1,2024-11-13 17:20:00,2024-11-14 11:05:00,British Airways,False,False,False,False,False,0.036718,Madrid,Berlin Brandenburg
+102,2005,335,€,2,2024-11-13 10:05:00,2024-11-14 19:30:00,SWISS,False,False,False,False,False,0.036484,Madrid,Berlin Brandenburg
+103,1200,562,€,1,2024-11-13 15:05:00,2024-11-14 11:05:00,British Airways,False,False,False,False,False,0.036323,Madrid,Berlin Brandenburg
+104,1135,612,€,1,2024-11-13 14:55:00,2024-11-14 09:50:00,Turkish Airlines,False,False,False,False,False,0.035322,Madrid,Berlin Brandenburg
+105,690,1023,€,2,2024-11-13 07:40:00,2024-11-13 19:10:00,TAP Air Portugal,False,False,False,False,False,0.034722,Madrid,Berlin Brandenburg
+106,930,769,€,2,2024-11-13 16:55:00,2024-11-14 08:25:00,Austrian Airlines,False,False,False,False,False,0.034277,Madrid,Berlin Brandenburg
+107,1065,701,€,2,2024-11-13 21:10:00,2024-11-14 14:55:00,TAP Air Portugal,False,False,False,False,False,0.032839,Madrid,Berlin Brandenburg
+108,1115,675,€,1,2024-11-13 16:45:00,2024-11-14 11:20:00,Iberia,False,False,False,False,False,0.032571,Madrid,Berlin Brandenburg
+109,990,765,€,2,2024-11-13 18:25:00,2024-11-14 10:55:00,Lufthansa,False,False,False,False,False,0.032357,Madrid,Berlin Brandenburg
+110,1080,739,€,1,2024-11-13 17:20:00,2024-11-14 11:20:00,Iberia,False,False,False,False,False,0.030695,Madrid,Berlin Brandenburg
+111,1150,794,€,1,2024-11-13 21:10:00,2024-11-14 16:20:00,TAP Air Portugal,False,False,False,False,False,0.026829,Madrid,Berlin Brandenburg
+112,270,3459,€,1,2024-11-13 08:25:00,2024-11-13 12:55:00,Lufthansa,False,False,False,False,False,0.026233,Madrid,Berlin Brandenburg
+113,1040,940,€,1,2024-11-13 16:45:00,2024-11-14 10:05:00,Iberia,False,False,False,False,False,0.02507,Madrid,Berlin Brandenburg
+114,995,987,€,1,2024-11-13 17:30:00,2024-11-14 10:05:00,Iberia,False,False,False,False,False,0.024954,Madrid,Berlin Brandenburg
+115,1005,1005,€,1,2024-11-13 17:20:00,2024-11-14 10:05:00,Iberia,False,False,False,False,False,0.024256,Madrid,Berlin Brandenburg
+116,1525,670,€,1,2024-11-13 21:10:00,2024-11-14 22:35:00,TAP Air Portugal,False,False,False,False,False,0.023976,Madrid,Berlin Brandenburg
+117,1340,768,€,1,2024-11-13 18:00:00,2024-11-14 16:20:00,TAP Air Portugal,False,False,False,False,False,0.023823,Madrid,Berlin Brandenburg
+118,960,1085,€,1,2024-11-13 19:05:00,2024-11-14 11:05:00,Iberia,False,False,False,False,False,0.023535,Madrid,Berlin Brandenburg
+119,1095,953,€,1,2024-11-13 15:50:00,2024-11-14 10:05:00,Iberia,False,False,False,False,False,0.023484,Madrid,Berlin Brandenburg
+120,310,3406,€,1,2024-11-13 13:45:00,2024-11-13 18:55:00,Lufthansa,False,False,False,False,False,0.023206,Madrid,Berlin Brandenburg
+121,1140,953,€,1,2024-11-13 15:05:00,2024-11-14 10:05:00,Iberia,False,False,False,False,False,0.022557,Madrid,Berlin Brandenburg
+122,1385,795,€,1,2024-11-13 14:50:00,2024-11-14 13:55:00,EgyptAir,False,False,False,False,False,0.022272,Madrid,Berlin Brandenburg
+123,1010,1096,€,1,2024-11-13 20:35:00,2024-11-14 13:25:00,Air Europa,False,False,False,False,False,0.022144,Madrid,Berlin Brandenburg
+124,1690,658,€,1,2024-11-13 12:10:00,2024-11-14 16:20:00,TAP Air Portugal,False,False,False,False,False,0.022059,Madrid,Berlin Brandenburg
+125,1020,1098,€,1,2024-11-13 18:05:00,2024-11-14 11:05:00,Iberia,False,False,False,False,False,0.021879,Madrid,Berlin Brandenburg
+126,1715,681,€,1,2024-11-13 18:00:00,2024-11-14 22:35:00,TAP Air Portugal,False,False,False,False,False,0.021002,Madrid,Berlin Brandenburg
+127,345,3459,€,1,2024-11-13 06:10:00,2024-11-13 11:55:00,Lufthansa,False,False,False,False,False,0.02053,Madrid,Berlin Brandenburg
+128,375,3521,€,2,2024-11-13 10:05:00,2024-11-13 16:20:00,SWISS,False,False,False,False,False,0.018552,Madrid,Berlin Brandenburg
+129,960,1477,€,1,2024-11-13 18:05:00,2024-11-14 10:05:00,Iberia,False,False,False,False,False,0.017286,Madrid,Berlin Brandenburg
+130,550,2703,€,2,2024-11-13 06:00:00,2024-11-13 15:10:00,Scandinavian Airlines,False,False,False,False,False,0.01648,Madrid,Berlin Brandenburg
+131,765,2004,€,2,2024-11-13 06:00:00,2024-11-13 18:45:00,Scandinavian Airlines,False,False,False,False,False,0.015982,Madrid,Berlin Brandenburg
+132,1425,1081,€,2,2024-11-13 12:10:00,2024-11-14 11:55:00,TAP Air Portugal,False,False,False,False,False,0.015909,Madrid,Berlin Brandenburg
+133,1525,1075,€,1,2024-11-13 14:55:00,2024-11-14 16:20:00,TAP Air Portugal,False,False,False,False,False,0.014954,Madrid,Berlin Brandenburg
+134,455,4029,€,2,2024-11-13 12:35:00,2024-11-13 20:10:00,Brussels Airlines,False,False,False,False,False,0.013362,Madrid,Berlin Brandenburg
+135,1350,1611,€,1,2024-11-13 08:25:00,2024-11-14 06:55:00,Qatar Airways,False,False,False,False,False,0.011267,Madrid,Berlin Brandenburg
+136,955,2506,€,1,2024-11-13 21:30:00,2024-11-14 13:25:00,Qatar Airways,False,False,False,False,False,0.010237,Madrid,Berlin Brandenburg
+137,935,2714,€,2,2024-11-13 17:55:00,2024-11-14 09:30:00,Scandinavian Airlines,False,False,False,False,False,0.009652,Madrid,Berlin Brandenburg
+138,935,2792,€,1,2024-11-13 15:20:00,2024-11-14 06:55:00,Qatar Airways,False,False,False,False,False,0.009387,Madrid,Berlin Brandenburg
+139,1030,2706,€,2,2024-11-13 16:20:00,2024-11-14 09:30:00,Scandinavian Airlines,False,False,False,False,False,0.00879,Madrid,Berlin Brandenburg
+140,910,3380,€,1,2024-11-13 19:35:00,2024-11-14 10:45:00,SWISS,False,False,False,False,False,0.007966,Madrid,Berlin Brandenburg
+141,1230,2768,€,2,2024-11-13 13:00:00,2024-11-14 09:30:00,Scandinavian Airlines,False,False,False,False,False,0.007196,Madrid,Berlin Brandenburg
+142,1350,2725,€,2,2024-11-13 11:00:00,2024-11-14 09:30:00,Scandinavian Airlines,False,False,False,False,False,0.00666,Madrid,Berlin Brandenburg

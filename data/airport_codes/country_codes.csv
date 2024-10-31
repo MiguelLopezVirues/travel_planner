@@ -1,0 +1,250 @@
+Country;alpha-2;alpha-3;Country_spanish
+Afghanistan;AF;AFG;Afganistan
+Albania;AL;ALB;Albania
+Algeria;DZ;DZA;Argelia
+American Samoa;AS;ASM;Samoa Americana
+Andorra;AD;AND;Andorra
+Angola;AO;AGO;Angola
+Anguilla;AI;AIA;Anguila
+Antarctica;AQ;ATA;Antartida
+Antigua and Barbuda;AG;ATG;Antigua y Barbuda
+Argentina;AR;ARG;Argentina
+Armenia;AM;ARM;Armenia
+Aruba;AW;ABW;Aruba
+Australia;AU;AUS;Australia
+Austria;AT;AUT;Austria
+Azerbaijan;AZ;AZE;Azerbaiyan
+Bahamas (the);BS;BHS;Bahamas (las)
+Bahrain;BH;BHR;Bahrein
+Bangladesh;BD;BGD;Bangladesh
+Barbados;BB;BRB;Barbados
+Belarus;BY;BLR;Bielorrusia
+Belgium;BE;BEL;Belgica
+Belize;BZ;BLZ;Belice
+Benin;BJ;BEN;Benin
+Bermuda;BM;BMU;islas Bermudas
+Bhutan;BT;BTN;Butan
+Bolivia (Plurinational State of);BO;BOL;Bolivia (Estado Plurinacional de)
+Bonaire, Sint Eustatius and Saba;BQ;BES;Bonaire, San Eustaquio y Saba
+Bosnia and Herzegovina;BA;BIH;Bosnia y Herzegovina
+Botswana;BW;BWA;Botsuana
+Bouvet Island;BV;BVT;Isla Bouvet
+Brazil;BR;BRA;Brasil
+British Indian Ocean Territory (the);IO;IOT;Territorio Britanico del Oceano Índico (el)
+Brunei Darussalam;BN;BRN;Brunei Darussalam
+Bulgaria;BG;BGR;Bulgaria
+Burkina Faso;BF;BFA;Burkina Faso
+Burundi;BI;BDI;Burundi
+Cabo Verde;CV;CPV;Cabo Verde
+Cambodia;KH;KHM;Camboya
+Cameroon;CM;CMR;Camerun
+Canada;CA;CAN;Canada
+Cayman Islands (the);KY;CYM;Islas Caiman (las)
+Central African Republic (the);CF;CAF;Republica Centroafricana (la)
+Chad;TD;TCD;Chad
+Chile;CL;CHL;Chile
+China;CN;CHN;Porcelana
+Christmas Island;CX;CXR;Isla de Navidad
+Cocos (Keeling) Islands (the);CC;CCK;Islas Cocos (Keeling) (las)
+Colombia;CO;COL;Colombia
+Comoros (the);KM;COM;Comoras (las)
+Congo (the Democratic Republic of the);CD;COD;Congo (Republica Democratica del)
+Congo (the);CG;COG;Congo (el)
+Cook Islands (the);CK;COK;Islas Cook (las)
+Costa Rica;CR;CRI;Costa Rica
+Croatia;HR;HRV;Croacia
+Cuba;CU;CUB;Cuba
+Curaçao;CW;CUW;Curazao
+Cyprus;CY;CYP;Chipre
+Czechia;CZ;CZE;Chequia
+Côte d'Ivoire;CI;CIV;Costa de Marfil
+Denmark;DK;DNK;Dinamarca
+Djibouti;DJ;DJI;Yibuti
+Dominica;DM;DMA;republica dominicana
+Dominican Republic (the);DO;DOM;Republica Dominicana (la)
+Ecuador;EC;ECU;Ecuador
+Egypt;EG;EGY;Egipto
+El Salvador;SV;SLV;Salvador
+Equatorial Guinea;GQ;GNQ;Guinea Ecuatorial
+Eritrea;ER;ERI;Eritrea
+Estonia;EE;EST;Estonia
+Eswatini;SZ;SWZ;Esuatini
+Ethiopia;ET;ETH;Etiopia
+Falkland Islands (the) [Malvinas];FK;FLK;Islas Malvinas (las) [Malvinas]
+Faroe Islands (the);FO;FRO;Islas Feroe (las)
+Fiji;FJ;FJI;Fiyi
+Finland;FI;FIN;Finlandia
+France;FR;FRA;Francia
+French Guiana;GF;GUF;Guayana Francesa
+French Polynesia;PF;PYF;Polinesia Francesa
+French Southern Territories (the);TF;ATF;Territorios Australes Franceses (los)
+Gabon;GA;GAB;Gabon
+Gambia (the);GM;GMB;Gambia (la)
+Georgia;GE;GEO;Georgia
+Germany;DE;DEU;Alemania
+Ghana;GH;GHA;Ghana
+Gibraltar;GI;GIB;Gibraltar
+Greece;GR;GRC;Grecia
+Greenland;GL;GRL;Tierra Verde
+Grenada;GD;GRD;Granada
+Guadeloupe;GP;GLP;Guadalupe
+Guam;GU;GUM;Guam
+Guatemala;GT;GTM;Guatemala
+Guernsey;GG;GGY;Guernesey
+Guinea;GN;GIN;Guinea
+Guinea-Bissau;GW;GNB;Guinea-Bisau
+Guyana;GY;GUY;Guayana
+Haiti;HT;HTI;Haiti
+Heard Island and McDonald Islands;HM;HMD;Islas Heard y McDonald
+Holy See (the);VA;VAT;Santa Sede (la)
+Honduras;HN;HND;Honduras
+Hong Kong;HK;HKG;Hong Kong
+Hungary;HU;HUN;Hungria
+Iceland;IS;ISL;Islandia
+India;IN;IND;India
+Indonesia;ID;IDN;Indonesia
+Iran (Islamic Republic of);IR;IRN;Iran (Republica Islamica del)
+Iraq;IQ;IRQ;Irak
+Ireland;IE;IRL;Irlanda
+Isle of Man;IM;IMN;isla de man
+Israel;IL;ISR;Israel
+Italy;IT;ITA;Italia
+Jamaica;JM;JAM;Jamaica
+Japan;JP;JPN;Japon
+Jersey;JE;JEY;Jersey
+Jordan;JO;JOR;Jordan
+Kazakhstan;KZ;KAZ;Kazajstan
+Kenya;KE;KEN;Kenia
+Kiribati;KI;KIR;Kiribati
+Korea (the Democratic People's Republic of);KP;PRK;Corea (Republica Popular Democratica de)
+Korea (the Republic of);KR;KOR;Corea (Republica de)
+Kuwait;KW;KWT;Kuwait
+Kyrgyzstan;KG;KGZ;Kirguistan
+Lao People's Democratic Republic (the);LA;LAO;Republica Democratica Popular Lao (la)
+Latvia;LV;LVA;Letonia
+Lebanon;LB;LBN;Libano
+Lesotho;LS;LSO;Lesoto
+Liberia;LR;LBR;Liberia
+Libya;LY;LBY;Libia
+Liechtenstein;LI;LIE;Liechtenstein
+Lithuania;LT;LTU;Lituania
+Luxembourg;LU;LUX;Luxemburgo
+Macao;MO;MAC;macao
+Madagascar;MG;MDG;Madagascar
+Malawi;MW;MWI;Malaui
+Malaysia;MY;MYS;Malasia
+Maldives;MV;MDV;Maldivas
+Mali;ML;MLI;Mali
+Malta;MT;MLT;Malta
+Marshall Islands (the);MH;MHL;Islas Marshall (las)
+Martinique;MQ;MTQ;Martinica
+Mauritania;MR;MRT;Mauritania
+Mauritius;MU;MUS;Mauricio
+Mayotte;YT;MYT;Mayotte
+Mexico;MX;MEX;Mexico
+Micronesia (Federated States of);FM;FSM;Micronesia (Estados Federados de)
+Moldova (the Republic of);MD;MDA;Moldavia (Republica de)
+Monaco;MC;MCO;Monaco
+Mongolia;MN;MNG;Mongolia
+Montenegro;ME;MNE;Montenegro
+Montserrat;MS;MSR;Montserrat
+Morocco;MA;MAR;Marruecos
+Mozambique;MZ;MOZ;Mozambique
+Myanmar;MM;MMR;Birmania
+Namibia;NA;NAM;Namibia
+Nauru;NR;NRU;Nauru
+Nepal;NP;NPL;Nepal
+Netherlands (the);NL;NLD;Paises Bajos (los)
+New Caledonia;NC;NCL;Nueva Caledonia
+New Zealand;NZ;NZL;Nueva Zelanda
+Nicaragua;NI;NIC;Nicaragua
+Niger (the);NE;NER;Niger (el)
+Nigeria;NG;NGA;Nigeria
+Niue;NU;NIU;Niue
+Norfolk Island;NF;NFK;Isla Norfolk
+Northern Mariana Islands (the);MP;MNP;Islas Marianas del Norte (las)
+Norway;NO;NOR;Noruega
+Oman;OM;OMN;Oman
+Pakistan;PK;PAK;Pakistan
+Palau;PW;PLW;Palaos
+Palestine, State of;PS;PSE;Palestina, Estado de
+Panama;PA;PAN;Panama
+Papua New Guinea;PG;PNG;Papua Nueva Guinea
+Paraguay;PY;PRY;Paraguay
+Peru;PE;PER;Peru
+Philippines (the);PH;PHL;Filipinas (la)
+Pitcairn;PN;PCN;Pitcairn
+Poland;PL;POL;Polonia
+Portugal;PT;PRT;Portugal
+Puerto Rico;PR;PRI;Puerto Rico
+Qatar;QA;QAT;Katar
+Republic of North Macedonia;MK;MKD;Republica de Macedonia del Norte
+Romania;RO;ROU;Rumania
+Russian Federation (the);RU;RUS;Federacion Rusa (la)
+Rwanda;RW;RWA;Ruanda
+Réunion;RE;REU;Reunion
+Saint Barthélemy;BL;BLM;San Bartolome
+Saint Helena, Ascension and Tristan da Cunha;SH;SHN;Santa Elena, Ascension y Tristan da Cunha
+Saint Kitts and Nevis;KN;KNA;San Cristobal y Nieves
+Saint Lucia;LC;LCA;Santa Lucia
+Saint Martin (French part);MF;MAF;San Martin (parte francesa)
+Saint Pierre and Miquelon;PM;SPM;San Pedro y Miquelon
+Saint Vincent and the Grenadines;VC;VCT;San Vicente y las Granadinas
+Samoa;WS;WSM;Samoa
+San Marino;SM;SMR;San Marino
+Sao Tome and Principe;ST;STP;Santo Tome y Principe
+Saudi Arabia;SA;SAU;Arabia Saudita
+Senegal;SN;SEN;Senegal
+Serbia;RS;SRB;Serbia
+Seychelles;SC;SYC;Seychelles
+Sierra Leone;SL;SLE;Sierra Leona
+Singapore;SG;SGP;Singapur
+Sint Maarten (Dutch part);SX;SXM;Sint Maarten (parte holandesa)
+Slovakia;SK;SVK;Eslovaquia
+Slovenia;SI;SVN;Eslovenia
+Solomon Islands;SB;SLB;Islas Salomon
+Somalia;SO;SOM;Somalia
+South Africa;ZA;ZAF;Sudafrica
+South Georgia and the South Sandwich Islands;GS;SGS;Islas Georgias del Sur y Sandwich del Sur
+South Sudan;SS;SSD;Sudan del Sur
+Spain;ES;ESP;España
+Sri Lanka;LK;LKA;Sri Lanka
+Sudan (the);SD;SDN;Sudan (el)
+Suriname;SR;SUR;Surinam
+Svalbard and Jan Mayen;SJ;SJM;Svalbard y Jan Mayen
+Sweden;SE;SWE;Suecia
+Switzerland;CH;CHE;Suiza
+Syrian Arab Republic;SY;SYR;Republica Árabe Siria
+Taiwan (Province of China);TW;TWN;Taiwan (Provincia de China)
+Tajikistan;TJ;TJK;Tayikistan
+Tanzania, United Republic of;TZ;TZA;Tanzania, Republica Unida de
+Thailand;TH;THA;Tailandia
+Timor-Leste;TL;TLS;Timor Oriental
+Togo;TG;TGO;Ir
+Tokelau;TK;TKL;Tokelau
+Tonga;TO;TON;Tonga
+Trinidad and Tobago;TT;TTO;Trinidad y Tobago
+Tunisia;TN;TUN;Tunez
+Turkey;TR;TUR;Pavo
+Turkmenistan;TM;TKM;Turkmenistan
+Turks and Caicos Islands (the);TC;TCA;Islas Turcas y Caicos (las)
+Tuvalu;TV;TUV;Tuvalu
+Uganda;UG;UGA;Uganda
+Ukraine;UA;UKR;Ucrania
+United Arab Emirates (the);AE;ARE;Emiratos Árabes Unidos (los)
+United Kingdom of Great Britain and Northern Ireland (the);GB;GBR;Reino Unido de Gran Bretaña e Irlanda del Norte (el)
+United States Minor Outlying Islands (the);UM;UMI;Islas menores alejadas de los Estados Unidos (las)
+United States of America (the);US;USA;Estados Unidos de America (los)
+Uruguay;UY;URY;Uruguay
+Uzbekistan;UZ;UZB;Uzbekistan
+Vanuatu;VU;VUT;Vanuatu
+Venezuela (Bolivarian Republic of);VE;VEN;Venezuela (Republica Bolivariana de)
+Viet Nam;VN;VNM;Vietnam
+Virgin Islands (British);VG;VGB;Islas Virgenes (Britanicas)
+Virgin Islands (U.S.);VI;VIR;Islas Virgenes (EE.UU.)
+Wallis and Futuna;WF;WLF;Wallis y Futuna
+Western Sahara;EH;ESH;Sahara Occidental
+Yemen;YE;YEM;Yemen
+Zambia;ZM;ZMB;Zambia
+Zimbabwe;ZW;ZWE;Zimbabue
+Åland Islands;AX;ALA;Islas Aland
