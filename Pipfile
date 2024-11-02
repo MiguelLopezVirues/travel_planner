@@ -15,6 +15,12 @@ scipy = "*"
 matplotlib = "*"
 seaborn = "*"
 tqdm = "*"
+ipykernel = "*"
+prompt-toolkit = "*"
+asyncio = "*"
+aiohttp = "*"
+python-dotenv = "*"
+futures = "*"
 
 [dev-packages]
 
