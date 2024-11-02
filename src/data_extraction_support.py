@@ -44,11 +44,15 @@ sys.path.append("..")
 # function typing
 from typing import List, Optional
 
+# regular expressions
+import re
+
+
 
 ### Flights - air scrapper - API
 def create_country_airport_code_df(list_of_countries):
     
-    list_of_countries_airports = list()
+    list_of_countries_airports = []
 
     for country in list_of_countries:
 
@@ -211,7 +215,7 @@ def build_flight_request_querystring_list(countries_airports_df,origin_city,dest
     """
     date_query_start_datetime = datetime.datetime.strptime(date_query_start, "%Y-%m-%d")
 
-    querystring_list = list()
+    querystring_list = []
     for destination_city in destination_cities_list:
         for step in range(days_window):
             date_departure = (date_query_start_datetime + datetime.timedelta(days=step)).strftime("%Y-%m-%d")
@@ -337,7 +341,7 @@ async def request_flight_itineraries_async_multiple(querystrings_list):
 
 def create_itineraries_dataframe_aller_retour(itineraries_dict_list):
 
-    extracted_itinerary_info_list = list()
+    extracted_itinerary_info_list = []
 
     for itinerary in itineraries_dict_list:
         extracted_itinerary_info_list.append(extract_flight_info_aller_retour(itinerary))
@@ -389,7 +393,7 @@ def extract_flight_info_aller_retour(flight_dict):
 
 def create_itineraries_dataframe(itineraries_dict_list):
 
-    extracted_itinerary_info_list = list()
+    extracted_itinerary_info_list = []
 
     for itinerary in itineraries_dict_list:
         extracted_itinerary_info_list.append(extract_flight_info(itinerary))
@@ -502,7 +506,7 @@ def extract_flight_info(flight_dict):
 
 # def create_itineraries_dataframe(itineraries_dict_list):
 
-#     extracted_itinerary_info_list = list()
+#     extracted_itinerary_info_list = []
 
 #     for itinerary in itineraries_dict_list:
 #         extracted_itinerary_info_list.append(extract_flight_info(itinerary))
@@ -777,7 +781,7 @@ def build_booking_urls(destinations_list: List[str], start_date: str, stay_durat
     
 
     start_date_datetime = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-    booking_url_list = list()
+    booking_url_list = []
     for destination in destinations_list:
         for step in range(n_steps):
             checkin = (start_date_datetime + datetime.timedelta(days=step*step_length)).strftime("%Y-%m-%d")
@@ -971,7 +975,8 @@ def accommodations_booking_extract_all_acommodations_selenium_concurrent(destina
 
 def get_pagination_htmls_by_city_date(city_name, date_start, date_end, page_start, n_pages, driver):
 
-    html_contents = list()
+    html_contents = []
+    activities_link_list = []
 
     for page_number in range(page_start, n_pages + page_start):
 
@@ -1004,8 +1009,9 @@ def get_pagination_htmls_by_city_date(city_name, date_start, date_end, page_star
                 html_content = driver.page_source
 
                 html_contents.append(html_content)
+                activities_link_list.append(activities_link)
 
-    return html_contents
+    return html_contents, activities_link_list
 
 
 
@@ -1013,19 +1019,20 @@ def get_pagination_htmls_by_city_date(city_name, date_start, date_end, page_star
 
 
 def activities_civitatis_extract_all_from_city(city_name, date_start, date_end, verbose=False):
+    period = 6
     # civitatis can check widows of 15 days max, calculate number of iterations
     date_start_datetime = datetime.datetime.strptime(date_start, "%Y-%m-%d")
     date_end_datetime = datetime.datetime.strptime(date_end, "%Y-%m-%d")
 
-    n_iter = int((date_end_datetime - date_start_datetime).days / 15)
+    n_iter = int((date_end_datetime - date_start_datetime).days / period)
 
     # define accumulator df
     total_actitivities_df = pd.DataFrame()
 
     for iter in range(1,n_iter+1):
         # define url 
-        date_start_iter = (date_start_datetime + datetime.timedelta(days=15*(iter-1))).strftime("%Y-%m-%d")
-        date_end_iter = ((date_start_datetime + datetime.timedelta(days=15*iter))).strftime("%Y-%m-%d")
+        date_start_iter = (date_start_datetime + datetime.timedelta(days=period*(iter-1))).strftime("%Y-%m-%d")
+        date_end_iter = ((date_start_datetime + datetime.timedelta(days=period*iter))).strftime("%Y-%m-%d")
         first_link = f"https://www.civitatis.com/es/{city_name}/?fromDate={date_start_iter}&toDate={date_end_iter}"
 
         # open driver
@@ -1077,14 +1084,16 @@ def activities_civitatis_extract_all_from_city(city_name, date_start, date_end, 
 
 
 def activities_civitatis_selenium_get_all_html_contents(cities_list, date_start, date_end):
+    period = 6
     # civitatis can check widows of 15 days max, calculate number of iterations
     date_start_datetime = datetime.datetime.strptime(date_start, "%Y-%m-%d")
     date_end_datetime = datetime.datetime.strptime(date_end, "%Y-%m-%d")
 
-    n_iter = int((date_end_datetime - date_start_datetime).days / 15)
+    n_iter = int((date_end_datetime - date_start_datetime).days / period)
 
     # define accumulator html_list
-    html_contents_total = list()
+    html_contents_total = []
+    pages_urls_total = []
     
     # open driver
     driver = webdriver.Chrome()
@@ -1093,8 +1102,8 @@ def activities_civitatis_selenium_get_all_html_contents(cities_list, date_start,
         for iter in range(1,n_iter+1):
 
             # define url 
-            date_start_iter = (date_start_datetime + datetime.timedelta(days=15*(iter-1))).strftime("%Y-%m-%d")
-            date_end_iter = ((date_start_datetime + datetime.timedelta(days=15*iter))).strftime("%Y-%m-%d")
+            date_start_iter = (date_start_datetime + datetime.timedelta(days=period*(iter-1))).strftime("%Y-%m-%d")
+            date_end_iter = ((date_start_datetime + datetime.timedelta(days=period*iter))).strftime("%Y-%m-%d")
 
             first_link = f"https://www.civitatis.com/es/{city_name}/?fromDate={date_start_iter}&toDate={date_end_iter}"
 
@@ -1130,11 +1139,14 @@ def activities_civitatis_selenium_get_all_html_contents(cities_list, date_start,
                 n_pages = last_page - 1
 
                 # collect unparsed pages html
-                html_contents = get_pagination_htmls_by_city_date(city_name, date_start_iter, date_end_iter, page_start, n_pages, driver)
+                html_contents, pages_urls = get_pagination_htmls_by_city_date(city_name, date_start_iter, date_end_iter, page_start, n_pages, driver)
                 html_contents.append(html_content1)
                 html_contents_total.extend(html_contents)
 
-    return html_contents_total
+                pages_urls_total.append(first_link)
+                pages_urls_total.extend(pages_urls)
+
+    return html_contents_total, pages_urls_total
 
 
 
@@ -1160,10 +1172,10 @@ def activities_civitatis_soup_from_all_html_contents(html_contents_total,verbose
 
 
 def activities_civitatis_extract_all_activites_multithread(cities_list, date_start, date_end, verbose):
-    html_contents_total = activities_civitatis_selenium_get_all_html_contents(cities_list, date_start, date_end)
+    html_contents_total, pages_urls = activities_civitatis_selenium_get_all_html_contents(cities_list, date_start, date_end)
 
     print("Now parsing with beautiful soup")
-    total_activities_df = activities_civitatis_soup_from_all_html_contents_multithread(html_contents_total,verbose=verbose)
+    total_activities_df = activities_civitatis_soup_from_all_html_contents_multithread(html_contents_total, pages_urls, verbose=verbose)
 
     return total_activities_df
 
@@ -1180,20 +1192,20 @@ def activities_civitatis_soup_from_all_html_contents_multithread(html_contents_t
 
 
 def activities_civitatis_extract_all_activites_parallel(cities_list, date_start, date_end, verbose):
-    html_contents_total = activities_civitatis_selenium_get_all_html_contents(cities_list, date_start, date_end)
+    html_contents_total, pages_urls = activities_civitatis_selenium_get_all_html_contents(cities_list, date_start, date_end)
 
     print("Now parsing with beautiful soup")
-    total_activities_df = activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total,verbose=verbose)
+    total_activities_df = activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total, pages_urls,verbose=verbose)
 
     return total_activities_df
 
 
-def activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total, verbose=False):
+def activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total, pages_urls, verbose=False):
     print(f"There are {len(html_contents_total)} html contents")
     start_time = time.time()
     with ProcessPoolExecutor() as executor:
 
-        page_dfs = list(executor.map(parse_single_page_wrapper, html_contents_total, [verbose] * len(html_contents_total)))
+        page_dfs = list(executor.map(parse_single_page_wrapper, html_contents_total, pages_urls, [verbose] * len(html_contents_total)))
 
     total_activities_df = pd.concat(page_dfs).reset_index(drop=True)
     end_time = time.time()
@@ -1201,17 +1213,22 @@ def activities_civitatis_soup_from_all_html_contents_parallel(html_contents_tota
     return total_activities_df
 
 
-def parse_single_page_wrapper(page_html, verbose=False):
-    return parse_single_page(page_html, verbose=verbose)
+def parse_single_page_wrapper(page_html, page_url, verbose=False):
+    return parse_single_page(page_html, page_url, verbose=verbose)
 
 
-def parse_single_page(page_html, verbose=False):
+def parse_single_page(page_html, page_url, verbose=False):
     page_soup = BeautifulSoup(page_html, "html.parser")
-    return pd.DataFrame(scrape_activities_from_page(page_soup, verbose=verbose))
+    print(page_url)
+    return pd.DataFrame(scrape_activities_from_page(page_soup, page_url, verbose=verbose))
 
 
-def scrape_activities_from_page(page_soup, verbose=False):
+def scrape_activities_from_page(page_soup, page_url, verbose=False):
+    print(page_url)
     activity_data_dict = {
+            "query_date": [],
+            "activity_date_range_start": [],
+            "activity_date_range_end": [],
             "activity_name": [],
             "description": [],
             "url": [],
@@ -1235,6 +1252,11 @@ def scrape_activities_from_page(page_soup, verbose=False):
                                 set(element.findAll("div", {"class": "m-availability__item _no-dates"})))
         
         activity_scraper_dict = {
+            "query_date": lambda _ : datetime.datetime.now(),
+
+            "activity_date_range_start": lambda _: re.findall(r"fromDate=(\d{4}-\d{2}-\d{2})", page_url)[0],
+
+            "activity_date_range_end": lambda _: re.findall(r"toDate=(\d{4}-\d{2}-\d{2})", page_url)[0],
 
             "activity_name": lambda element: element.find("a", {"class": "ga-trackEvent-element _activity-link"})["title"],
 
@@ -1295,10 +1317,10 @@ def scrape_activities_from_page(page_soup, verbose=False):
 ### Soup parallel/multithread + selenium concurrent
 
 def activities_civitatis_extract_all_activites_parallel_selenium(cities_list, date_start, date_end, verbose):
-    html_contents_total = activities_civitatis_selenium_get_all_html_contents_concurrent(cities_list, date_start, date_end)
+    html_contents_total, pages_urls = activities_civitatis_selenium_get_all_html_contents_concurrent(cities_list, date_start, date_end)
 
     print("Now parsing with beautiful soup")
-    total_activities_df = activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total,verbose=verbose)
+    total_activities_df = activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total,pages_urls,verbose=verbose)
 
     return total_activities_df
 
@@ -1319,19 +1341,24 @@ def activities_civitatis_selenium_get_all_html_contents_concurrent(cities_list, 
         
         # Collect results as they complete
         html_contents_total = []
+        pages_urls_total = []
         for future in futures:
-            html_contents_total.extend(future.result())
+            html_contents_total.extend(future.result()[0])
+            pages_urls_total.extend(future.result()[1])
+            print(f"URL is {future.result()[1]}")
     
-    return html_contents_total
+    return html_contents_total, pages_urls_total
 
 
 ### Concurrent selenium
 def fetch_city_htmls(city_name, date_start, date_end):
+    period = 6
     date_start_datetime = datetime.datetime.strptime(date_start, "%Y-%m-%d")
     date_end_datetime = datetime.datetime.strptime(date_end, "%Y-%m-%d")
-    n_iter = int((date_end_datetime - date_start_datetime).days / 15)
+    n_iter = int((date_end_datetime - date_start_datetime).days / period)
     
     html_contents_total = []
+    pages_urls_total = []
     
     # Open a new WebDriver instance for each thread
     driver = webdriver.Chrome()
@@ -1339,8 +1366,8 @@ def fetch_city_htmls(city_name, date_start, date_end):
     
     for iter in range(1, n_iter + 1):
         # Calculate iteration end date
-        date_start_iter = (date_start_datetime + datetime.timedelta(days=15*(iter-1))).strftime("%Y-%m-%d")
-        date_end_iter = ((date_start_datetime + datetime.timedelta(days=15*iter))).strftime("%Y-%m-%d")
+        date_start_iter = (date_start_datetime + datetime.timedelta(days=period*(iter-1))).strftime("%Y-%m-%d")
+        date_end_iter = ((date_start_datetime + datetime.timedelta(days=period*iter))).strftime("%Y-%m-%d")
         first_link = f"https://www.civitatis.com/es/{city_name}/?fromDate={date_start_iter}&toDate={date_end_iter}"
 
         # Navigate
@@ -1360,20 +1387,23 @@ def fetch_city_htmls(city_name, date_start, date_end):
         last_page = math.ceil(int(soup.find("div", {"class", "columns o-pagination__showing"}).find("div", {"class": "left"}).text.split()[0]) / 20)
         
         # Get all pagination pages
-        html_contents = get_pagination_htmls_by_city_date(city_name, date_start_iter, date_end_iter, 2, last_page - 1, driver)
+        html_contents, page_urls = get_pagination_htmls_by_city_date(city_name, date_start_iter, date_end_iter, 2, last_page - 1, driver)
         html_contents.append(html_content1)
         html_contents_total.extend(html_contents)
+        print(f"URL per pagination are {page_urls}")
+        pages_urls_total.append(first_link)
+        pages_urls_total.extend(page_urls)
     
     driver.quit()
-    return html_contents_total
+    return html_contents_total, pages_urls_total
 
 ### Soup parallel + selenium concurrent optimized
 
 def activities_civitatis_extract_all_activites_parallel_selenium_optimized(cities_list, date_start, date_end, verbose):
-    html_contents_total = activities_civitatis_selenium_get_all_html_contents_concurrent_optimized(cities_list, date_start, date_end)
+    html_contents_total, pages_urls = activities_civitatis_selenium_get_all_html_contents_concurrent_optimized(cities_list, date_start, date_end)
 
     print("Now parsing with beautiful soup")
-    total_activities_df = activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total,verbose=verbose)
+    total_activities_df = activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total,pages_urls,verbose=verbose)
 
     return total_activities_df
 
@@ -1385,19 +1415,23 @@ def activities_civitatis_selenium_get_all_html_contents_concurrent_optimized(cit
         
         # Collect results as they complete
         html_contents_total = []
+        pages_urls_total = []
         for future in futures:
-            html_contents_total.extend(future.result())
+            html_contents_total.extend(future.result()[0])
+            pages_urls_total.extend(future.result()[1])
     
-    return html_contents_total
+    return html_contents_total, pages_urls_total
 
 
 # Concurrent selenium optimized
 def fetch_city_htmls_optimized(city_name, date_start, date_end):
+    period = 6
     date_start_datetime = datetime.datetime.strptime(date_start, "%Y-%m-%d")
     date_end_datetime = datetime.datetime.strptime(date_end, "%Y-%m-%d")
-    n_iter = int((date_end_datetime - date_start_datetime).days / 15)
+    n_iter = int((date_end_datetime - date_start_datetime).days / period)
     
     html_contents_total = []
+    pages_urls_total = []
 
     # add optimization options
     options = Options()
@@ -1412,8 +1446,8 @@ def fetch_city_htmls_optimized(city_name, date_start, date_end):
     
     for iter in range(1, n_iter + 1):
         # Calculate iteration end date
-        date_start_iter = (date_start_datetime + datetime.timedelta(days=15*(iter-1))).strftime("%Y-%m-%d")
-        date_end_iter = ((date_start_datetime + datetime.timedelta(days=15*iter))).strftime("%Y-%m-%d")
+        date_start_iter = (date_start_datetime + datetime.timedelta(days=period*(iter-1))).strftime("%Y-%m-%d")
+        date_end_iter = ((date_start_datetime + datetime.timedelta(days=period*iter))).strftime("%Y-%m-%d")
         first_link = f"https://www.civitatis.com/es/{city_name}/?fromDate={date_start_iter}&toDate={date_end_iter}"
 
         # Navigate
@@ -1433,9 +1467,12 @@ def fetch_city_htmls_optimized(city_name, date_start, date_end):
         last_page = math.ceil(int(soup.find("div", {"class", "columns o-pagination__showing"}).find("div", {"class": "left"}).text.split()[0]) / 20)
         
         # Get all pagination pages
-        html_contents = get_pagination_htmls_by_city_date(city_name, date_start_iter, date_end_iter, 2, last_page - 1, driver)
+        html_contents, pages_urls = get_pagination_htmls_by_city_date(city_name, date_start_iter, date_end_iter, 2, last_page - 1, driver)
         html_contents.append(html_content1)
         html_contents_total.extend(html_contents)
+
+        pages_urls_total.append(first_link)
+        pages_urls_total.extend(pages_urls)
     
     driver.quit()
-    return html_contents_total
+    return html_contents_total, pages_urls_total

@@ -21,6 +21,8 @@ asyncio = "*"
 aiohttp = "*"
 python-dotenv = "*"
 futures = "*"
+fastparquet = "*"
+pyarrow = "*"
 
 [dev-packages]
 
