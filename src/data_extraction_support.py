@@ -189,10 +189,7 @@ def request_flight_itineraries_aller_retour_one_city_date(countries_airports_df,
     return itineraries
 
 
-
-
-
-def build_flight_request_querystring_list(countries_airports_df,origin_city,destination_cities_list, date_query_start, days_window=365, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
+def build_flight_request_querystring_double(countries_airports_df,origin_city,destination_cities_list, date_query_start, n_steps=52, step_length=7, days_window=2, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
                                    destination_airport_code=None, cabin_class="economy",sort_by="best",currency="EUR"):
     """This function generates a list of querystrings from the input params, that is used to later generate a list of I/O taks to a flights API.
     It generates querystrings for go and return flights both on the same day, iterating from the date_query_start to the end of the days window.
@@ -217,9 +214,154 @@ def build_flight_request_querystring_list(countries_airports_df,origin_city,dest
 
     querystring_list = []
     for destination_city in destination_cities_list:
-        for step in range(days_window):
-            date_departure = (date_query_start_datetime + datetime.timedelta(days=step)).strftime("%Y-%m-%d")
-            date_return = (date_query_start_datetime + datetime.timedelta(days=step+1)).strftime("%Y-%m-%d")
+        for step in range(n_steps):
+            date_departure = (date_query_start_datetime + datetime.timedelta(days=step*step_length)).strftime("%Y-%m-%d")
+            date_return = (date_query_start_datetime + datetime.timedelta(days=step*step_length+days_window)).strftime("%Y-%m-%d")
+            
+            querystring_double = build_flight_request_querystring(countries_airports_df,origin_city=destination_city,destination_city=origin_city, date_departure=date_departure,date_return=date_return, n_adults= n_adults, n_children=n_children, n_infants=n_infants, origin_airport_code=origin_airport_code, 
+                                   destination_airport_code=destination_airport_code, cabin_class=cabin_class,sort_by=sort_by,currency=currency)
+            
+            querystring_list.append([querystring_double])
+    
+    return querystring_list
+
+
+def build_flight_request_querystring_list_single(countries_airports_df,origin_city,destination_cities_list, date_query_start, n_steps=52, step_length=7, days_window=2, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
+                                   destination_airport_code=None, cabin_class="economy",sort_by="best",currency="EUR"):
+    """This function generates a list of querystrings from the input params, that is used to later generate a list of I/O taks to a flights API.
+    It generates querystrings for go and return flights both on the same day, iterating from the date_query_start to the end of the days window.
+    This allows to map all flights from the selected origin to the possible destinations, for the time window selected (defaulted to 1 year).
+
+    Args:
+        countries_airports_df (_type_): _description_
+        origin_city (_type_): _description_
+        destination_cities_list (_type_): _description_
+        date_query_start (_type_): _description_
+        date_query_end (_type_): _description_
+        n_adults (int, optional): _description_. Defaults to 1.
+        n_children (int, optional): _description_. Defaults to 0.
+        n_infants (int, optional): _description_. Defaults to 0.
+        origin_airport_code (_type_, optional): _description_. Defaults to None.
+        destination_airport_code (_type_, optional): _description_. Defaults to None.
+        cabin_class (str, optional): _description_. Defaults to "economy".
+        sort_by (str, optional): _description_. Defaults to "best".
+        currency (str, optional): _description_. Defaults to "EUR".
+    """
+    date_query_start_datetime = datetime.datetime.strptime(date_query_start, "%Y-%m-%d")
+
+    querystring_list = []
+    for destination_city in destination_cities_list:
+        for step in range(n_steps):
+            date_departure = (date_query_start_datetime + datetime.timedelta(days=step*step_length)).strftime("%Y-%m-%d")
+            date_return = (date_query_start_datetime + datetime.timedelta(days=step*step_length+days_window)).strftime("%Y-%m-%d")
+
+            querystring_departure = build_flight_request_querystring(countries_airports_df,origin_city=origin_city,destination_city=destination_city, date_departure=date_departure, n_adults= n_adults, n_children=n_children, n_infants=n_infants, origin_airport_code=origin_airport_code, 
+                                   destination_airport_code=destination_airport_code, cabin_class=cabin_class,sort_by=sort_by,currency=currency)
+            
+            querystring_return = build_flight_request_querystring(countries_airports_df,origin_city=destination_city,destination_city=origin_city, date_departure=date_return, n_adults= n_adults, n_children=n_children, n_infants=n_infants, origin_airport_code=origin_airport_code, 
+                                   destination_airport_code=destination_airport_code, cabin_class=cabin_class,sort_by=sort_by,currency=currency)
+            
+            querystring_list.extend([querystring_departure,querystring_return])
+    
+    return querystring_list
+
+
+def build_flight_request_querystring(countries_airports_df,origin_city,destination_city, date_departure, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
+                                   destination_airport_code=None, cabin_class="economy",sort_by="price_high",currency="EUR"):
+    
+    ## create API query params based on user restrictions
+
+    url = "https://sky-scrapper.p.rapidapi.com/api/v2/flights/searchFlightsComplete"
+
+
+    # make sure cabin class exits. Not used at the moment as it filters out possibly available flights. Better to get all and filter by SQL query.
+    cabin_class_list = ["economy","premium_economy","business","first"]
+    cabin_class = cabin_class if cabin_class in cabin_class_list else "economy"
+
+    # choose this to find more airports to choose by
+    try:
+        origin_city_id = countries_airports_df.loc[countries_airports_df["city"].str.lower() == origin_city.lower(), "city_entityId"]
+
+        origin_city_id = str(int(origin_city_id.iloc[0]))
+
+    except:
+        pass
+
+    try:
+        destination_city_id =  countries_airports_df.loc[countries_airports_df["city"].str.lower() == destination_city.lower(), "city_entityId"]
+
+        destination_city_id = str(int(destination_city_id.iloc[0]))
+
+    except:
+        pass
+    
+    # careful here as how to select the main airport is now mere coincidence and in the future it will need a method to be selected
+    if origin_airport_code != None:
+        try:
+            origin_airport_id = str(int(countries_airports_df.loc[countries_airports_df["city"].str.lower() == origin_city,"airport_entityId"].unique()))
+        except:
+            pass
+    if destination_airport_code != None:
+        try:
+            destination_airport_id = str(int(countries_airports_df.loc[countries_airports_df["city"].str.lower() == destination_city,"airport_entityId"].unique()))
+        except:
+            pass
+
+    sort_by_dict = {
+        "best": "best",
+        "cheapest": "price_high",
+        "fastest": "fastest",
+        "outbound_take_off": "outbound_take_off_time",
+        "outbound_landing": "outbound_landing_time",
+        "return_take_off": "return_take_off_time",
+        "return_landing": "return_landing_time"
+    }
+
+    sort_by = sort_by_dict.get(sort_by,"price_high")
+
+    if origin_airport_code != None:
+        querystring = {"originSkyId":origin_city,"destinationSkyId": destination_city,"originEntityId":origin_airport_id,
+                    "destinationEntityId":destination_airport_id,"date": date_departure,
+                    "adults":str(n_adults),"childrens":str(n_children),"infants": str(n_infants),"sortBy":sort_by,"currency":currency}
+    else:
+        querystring = {"originSkyId":origin_city,"destinationSkyId": destination_city,"originEntityId":origin_city_id,
+            "destinationEntityId":destination_city_id,"date": date_departure,
+            "adults":str(n_adults),"childrens":str(n_children),"infants": str(n_infants),"sortBy":sort_by,"currency":currency}
+        
+    if date_departure != None:
+        querystring["date_return"] = date_departure
+
+    return querystring
+
+
+def build_flight_request_querystring_list_single(countries_airports_df,origin_city,destination_cities_list, date_query_start, n_steps=52, step_length=7, days_window=2, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
+                                   destination_airport_code=None, cabin_class="economy",sort_by="best",currency="EUR"):
+    """This function generates a list of querystrings from the input params, that is used to later generate a list of I/O taks to a flights API.
+    It generates querystrings for go and return flights both on the same day, iterating from the date_query_start to the end of the days window.
+    This allows to map all flights from the selected origin to the possible destinations, for the time window selected (defaulted to 1 year).
+
+    Args:
+        countries_airports_df (_type_): _description_
+        origin_city (_type_): _description_
+        destination_cities_list (_type_): _description_
+        date_query_start (_type_): _description_
+        date_query_end (_type_): _description_
+        n_adults (int, optional): _description_. Defaults to 1.
+        n_children (int, optional): _description_. Defaults to 0.
+        n_infants (int, optional): _description_. Defaults to 0.
+        origin_airport_code (_type_, optional): _description_. Defaults to None.
+        destination_airport_code (_type_, optional): _description_. Defaults to None.
+        cabin_class (str, optional): _description_. Defaults to "economy".
+        sort_by (str, optional): _description_. Defaults to "best".
+        currency (str, optional): _description_. Defaults to "EUR".
+    """
+    date_query_start_datetime = datetime.datetime.strptime(date_query_start, "%Y-%m-%d")
+
+    querystring_list = []
+    for destination_city in destination_cities_list:
+        for step in range(n_steps):
+            date_departure = (date_query_start_datetime + datetime.timedelta(days=step*step_length)).strftime("%Y-%m-%d")
+            date_return = (date_query_start_datetime + datetime.timedelta(days=step*step_length+days_window)).strftime("%Y-%m-%d")
 
             querystring_departure = build_flight_request_querystring(countries_airports_df,origin_city=origin_city,destination_city=destination_city, date_departure=date_departure, n_adults= n_adults, n_children=n_children, n_infants=n_infants, origin_airport_code=origin_airport_code, 
                                    destination_airport_code=destination_airport_code, cabin_class=cabin_class,sort_by=sort_by,currency=currency)
