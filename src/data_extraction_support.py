@@ -860,7 +860,7 @@ def scrape_accommodations_from_page(page_soup, verbose=False):
         "double_bed": lambda card: "Yes" if any(["doble" in element.text for element in card.find_all("div",{"class":"abf093bdfe"})]) else "No",
         "single_bed": lambda card: "Yes" if any(["individual" in element.text for element in card.find_all("div",{"class":"abf093bdfe"})]) else "No",
         "free_cancellation": lambda card: "Yes" if any([element.text == "Cancelación gratis" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
-        "breakfast_included": lambda card: "Yes" if any([element.text == "Cancelación gratis" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
+        "breakfast_included": lambda card: "Yes" if any([element.text == "Desayuno incluido" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
         "pay_at_hotel": lambda card: "Yes" if any(['Sin pago por adelantado' in element.text for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
         "location_score": lambda card: card.find("span",{"class":"a3332d346a"}).text.split()[1].replace(",","."),
         "free_taxi": lambda card: "Yes" if any(["taxi gratis" in element.text.lower() for element in card.find_all("div",{"span":"b30f8eb2d6"})]) else "No"
