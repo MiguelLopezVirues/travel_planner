@@ -1074,7 +1074,6 @@ def fetch_booking_html_optimized(booking_url):
     return html_page
 
 def accommodations_booking_soup_from_all_html_contents_parallel(html_contents_total, verbose=False):
-    print(f"There are {len(html_contents_total)} html contents")
     start_time = time.time()
     with ProcessPoolExecutor() as executor:
 
@@ -1303,9 +1302,7 @@ def activities_civitatis_extract_all_activites(cities_list, date_start, date_end
 def activities_civitatis_soup_from_all_html_contents(html_contents_total,verbose=False):
 
     total_actitivities_df = pd.DataFrame()
-    print(f"There are {len(html_contents_total)} html contents")
     for page_num, page_html in enumerate(html_contents_total):
-        print(f"Parsing {page_num}")
         page_soup = BeautifulSoup(page_html, "html.parser")
         page_activities_df = pd.DataFrame(scrape_activities_from_page(page_soup, verbose=verbose))
         total_actitivities_df = pd.concat([total_actitivities_df,page_activities_df]).reset_index(drop=True)
@@ -1322,7 +1319,6 @@ def activities_civitatis_extract_all_activites_multithread(cities_list, date_sta
     return total_activities_df
 
 def activities_civitatis_soup_from_all_html_contents_multithread(html_contents_total, verbose=False):
-    print(f"There are {len(html_contents_total)} html contents")
     start_time = time.time()
     with ThreadPoolExecutor() as executor:
         page_dfs = list(executor.map(lambda page_html: parse_single_page(page_html, verbose), html_contents_total))
@@ -1343,7 +1339,6 @@ def activities_civitatis_extract_all_activites_parallel(cities_list, date_start,
 
 
 def activities_civitatis_soup_from_all_html_contents_parallel(html_contents_total, pages_urls, verbose=False):
-    print(f"There are {len(html_contents_total)} html contents")
     start_time = time.time()
     with ProcessPoolExecutor() as executor:
 
@@ -1361,14 +1356,13 @@ def parse_single_page_wrapper(page_html, page_url, verbose=False):
 
 def parse_single_page(page_html, page_url, verbose=False):
     page_soup = BeautifulSoup(page_html, "html.parser")
-    print(page_url)
     return pd.DataFrame(scrape_activities_from_page(page_soup, page_url, verbose=verbose))
 
 
 def scrape_activities_from_page(page_soup, page_url, verbose=False):
-    print(page_url)
     activity_data_dict = {
             "query_date": [],
+            "city": [],
             "activity_date_range_start": [],
             "activity_date_range_end": [],
             "activity_name": [],
@@ -1395,6 +1389,8 @@ def scrape_activities_from_page(page_soup, page_url, verbose=False):
         
         activity_scraper_dict = {
             "query_date": lambda _ : datetime.datetime.now(),
+
+            "city": lambda _: re.findall(r".com/es/(\w+)/", page_url)[0],
 
             "activity_date_range_start": lambda _: re.findall(r"fromDate=(\d{4}-\d{2}-\d{2})", page_url)[0],
 
@@ -1487,7 +1483,6 @@ def activities_civitatis_selenium_get_all_html_contents_concurrent(cities_list, 
         for future in futures:
             html_contents_total.extend(future.result()[0])
             pages_urls_total.extend(future.result()[1])
-            print(f"URL is {future.result()[1]}")
     
     return html_contents_total, pages_urls_total
 
@@ -1532,7 +1527,6 @@ def fetch_city_htmls(city_name, date_start, date_end):
         html_contents, page_urls = get_pagination_htmls_by_city_date(city_name, date_start_iter, date_end_iter, 2, last_page - 1, driver)
         html_contents.append(html_content1)
         html_contents_total.extend(html_contents)
-        print(f"URL per pagination are {page_urls}")
         pages_urls_total.append(first_link)
         pages_urls_total.extend(page_urls)
     
