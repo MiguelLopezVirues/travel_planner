@@ -23,6 +23,9 @@ python-dotenv = "*"
 futures = "*"
 fastparquet = "*"
 pyarrow = "*"
+psycopg2 = "==2.9.9"
+psycopg2-binary = "==2.9.9"
+unidecode = "*"
 
 [dev-packages]
 

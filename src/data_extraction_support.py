@@ -563,7 +563,11 @@ def extract_flight_info(flight_dict):
         'fare_isPartiallyRefundable': lambda flight: flight['farePolicy']['isPartiallyRefundable'],
         'score': lambda flight: float(flight['score']),
         'origin_airport': lambda flight: flight['legs'][0]['origin']['name'],
-        'destination_airport': lambda flight: flight['legs'][0]['destination']['name']
+        'destination_airport': lambda flight: flight['legs'][0]['destination']['name'],
+        'origin_airport_code': lambda flight: flight['legs'][0]['origin']['displayCode'],
+        'destination_airport_code': lambda flight: flight['legs'][0]['destination']['displayCode'],
+        'origin_airport_entityid': lambda flight: flight['legs'][0]['origin']['entityId'],
+        'destination_airport_entityid': lambda flight: flight['legs'][0]['destination']['entityId']
     }
 
 
