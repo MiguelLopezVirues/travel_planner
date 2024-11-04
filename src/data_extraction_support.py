@@ -35,7 +35,9 @@ import dotenv
 import os
 dotenv.load_dotenv()
 AIR_SCRAPPER_API_KEY = os.getenv("AIR_SCRAPPER_KEY")
-GOOGLE_API = os.getenv("GOOGLE API")
+GOOGLE_API = os.getenv("GOOGLE_API_KEY")
+BASE_URL_FORECAST = os.getenv("BASE_URL_FORECAST")
+BASE_URL_ARCHIVE = os.getenv("BASE_URL_ARCHIVE")
 
 # import support functions
 import sys 
@@ -49,7 +51,7 @@ import re
 
 
 
-### Flights - air scrapper - API
+### Cities 
 def create_country_airport_code_df(list_of_countries):
     
     list_of_countries_airports = []
@@ -107,88 +109,109 @@ def map_airport_codes(dictionary,country):
     return result_dict
 
 
-def request_flight_itineraries_aller_retour_one_city_date(countries_airports_df,origin_city,destination_city, date_departure, date_return, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
-                                   destination_airport_code=None, cabin_class="economy",sort_by="best",currency="EUR"):
-    
-    ## create API query params based on user restrictions
-
-    url = "https://sky-scrapper.p.rapidapi.com/api/v2/flights/searchFlightsComplete"
-
-
-    # make sure cabin class exits
-    cabin_class_list = ["economy","premium_economy","business","first"]
-    cabin_class = cabin_class if cabin_class in cabin_class_list else "economy"
-
-    # choose this to find more airports to choose by
-    try:
-        origin_city_id = countries_airports_df.loc[countries_airports_df["city"].str.lower() == origin_city.lower(), "city_entityId"]
-
-        origin_city_id = str(int(origin_city_id.iloc[0]))
-
-    except:
-        pass
-
-    try:
-        destination_city_id =  countries_airports_df.loc[countries_airports_df["city"].str.lower() == destination_city.lower(), "city_entityId"]
-
-        destination_city_id = str(int(destination_city_id.iloc[0]))
-
-    except:
-        pass
-    
-    # this is not used as if we pass information about the city only, we get more airports to choose from, which can be a double edged sword
-    if origin_airport_code != None:
-        try:
-            origin_airport_id = str(int(countries_airports_df.loc[countries_airports_df["city"].str.lower() == destination_city,"city_entityId"].unique()))
-        except:
-            pass
-    if destination_airport_code != None:
-        try:
-            destination_airport_id = str(int(countries_airports_df.loc[countries_airports_df["city"].str.lower() == destination_city,"city_entityId"].unique()))
-        except:
-            pass
-
-    sort_by_dict = {
-        "best": "best",
-        "cheapest": "price_high",
-        "fastest": "fastest",
-        "outbound_take_off": "outbound_take_off_time",
-        "outbound_landing": "outbound_landing_time",
-        "return_take_off": "return_take_off_time",
-        "return_landing": "return_landing_time"
+async def get_lat_lon(city, country="Spain"):
+    url = "https://nominatim.openstreetmap.org/search"
+    params = {
+        "city": city,
+        "country": country,
+        "format": "json",
+        "limit": 1
     }
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, params=params) as response:
+            if response.status == 429:
+                print(f"Rate limit hit for {city}. Retrying...")
+                await asyncio.sleep(1)  # Wait for a second before retrying
+                return await get_lat_lon(city)  # Retry the same request
+            elif response.status == 200:
+                data = await response.json()
+                if data:
+                    lat = data[0]["lat"]
+                    lon = data[0]["lon"]
+                    return city, lat, lon
+            return city, None, None
 
-    sort_by = sort_by_dict.get(sort_by,"best")
+async def get_cities_coordinates(cities_list): 
 
-    if origin_airport_code != None:
-        querystring = {"originSkyId":origin_city,"destinationSkyId": destination_city,"originEntityId":origin_airport_id,
-                    "destinationEntityId":destination_airport_id,"date": date_departure, "returnDate": date_return,"cabinClass":"economy",
-                    "adults":str(n_adults),"childrens":str(n_children),"infants": str(n_infants),"sortBy":sort_by,"currency":currency}
-    else:
-        querystring = {"originSkyId":origin_city,"destinationSkyId": destination_city,"originEntityId":origin_city_id,
-            "destinationEntityId":destination_city_id,"date": date_departure, "returnDate": date_return,"cabinClass":"economy",
-            "adults":str(n_adults),"childrens":str(n_children),"infants": str(n_infants),"sortBy":sort_by,"currency":currency}
+    tasks = [get_lat_lon(city) for city in cities_list]
+    results = await asyncio.gather(*tasks)
 
-
-
-    headers = {
-        "x-rapidapi-key": AIR_SCRAPPER_API_KEY,
-        "x-rapidapi-host": "sky-scrapper.p.rapidapi.com"
-    }
-
-    response = requests.get(url, headers=headers, params=querystring)
-    if response.status_code == 200:
-        try:
-            itineraries = response.json()["data"]["itineraries"]
-        except:
-            return np.nan
-    else:
-        raise ValueError
+    return results
 
 
-    return itineraries
+### FLIGHTS - air scrapper - API
+from typing import List, Dict, Union
+import pandas as pd
+
+async def get_flights(
+    countries_airports: Dict[str, str],
+    origin_city: str,
+    destination_cities: List[str],
+    start_date: str = "2024-11-01",
+    n_steps: int = 3,
+    step_length: int = 7,
+    days_window: int = 2,
+    n_adults: int = 1,
+    n_children: int = 0,
+    n_infants: int = 0,
+    origin_airport_code: bool = True,
+    destination_airport_code: bool = True,
+    sort_by: str = "price_high",
+    currency: str = "EUR"
+) -> pd.DataFrame:
+    """
+    Asynchronously retrieves flight itineraries based on search criteria,
+    organizes them in a DataFrame, and saves the data to a Parquet file.
+
+    Parameters:
+    - countries_airports (Dict[str, str]): Dictionary mapping country names to their airport codes.
+    - origin_city (str): Name of the origin city.
+    - destination_cities (List[str]): List of destination city names.
+    - start_date (str): The start date of the itinerary search in 'YYYY-MM-DD' format.
+    - n_steps (int): Number of date steps to search over.
+    - step_length (int): Interval in days between each date step.
+    - days_window (int): Window in days around each date step for flexibility in flight dates.
+    - n_adults (int): Number of adult passengers.
+    - n_children (int): Number of child passengers.
+    - n_infants (int): Number of infant passengers.
+    - origin_airport_code (bool): Whether to include the origin airport code in the query.
+    - destination_airport_code (bool): Whether to include the destination airport code in the query.
+    - sort_by (str): Criterion to sort the results by (e.g., 'price_high').
+    - currency (str): Currency code for the results (e.g., 'EUR').
+
+    Returns:
+    - pd.DataFrame: DataFrame containing the flattened itinerary data, saved to a Parquet file.
+    """
+    
+    querystrings_list = build_flight_request_querystring_list_single(
+        countries_airports,
+        origin_city,
+        destination_cities,
+        start_date,
+        n_steps=n_steps,
+        step_length=step_length,
+        days_window=days_window,
+        n_adults=n_adults,
+        n_children=n_children,
+        n_infants=n_infants,
+        origin_airport_code=origin_airport_code,
+        destination_airport_code=destination_airport_code,
+        sort_by=sort_by,
+        currency=currency
+    )
+    
+    itineraries_dict_list = await request_flight_itineraries_async_multiple(querystrings_list)
+    
+    itineraries_dict_list_flat = [itinerary_dict for dict_list in itineraries_dict_list if dict_list for itinerary_dict in dict_list]
+    itineraries_df = create_itineraries_dataframe(itineraries_dict_list_flat)
+    
+    itineraries_df.to_parquet("../data/flights/itineraries.parquet")
+
+    return itineraries_df
 
 
+
+# for double way - not used at the moment
 def build_flight_request_querystring_double(countries_airports_df,origin_city,destination_cities_list, date_query_start, n_steps=52, step_length=7, days_window=2, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
                                    destination_airport_code=None, cabin_class="economy",sort_by="best",currency="EUR"):
     """This function generates a list of querystrings from the input params, that is used to later generate a list of I/O taks to a flights API.
@@ -226,6 +249,7 @@ def build_flight_request_querystring_double(countries_airports_df,origin_city,de
     return querystring_list
 
 
+# for single way - used at the moment
 def build_flight_request_querystring_list_single(countries_airports_df,origin_city,destination_cities_list, date_query_start, n_steps=52, step_length=7, days_window=2, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
                                    destination_airport_code=None, cabin_class="economy",sort_by="best",currency="EUR"):
     """This function generates a list of querystrings from the input params, that is used to later generate a list of I/O taks to a flights API.
@@ -403,7 +427,8 @@ def build_flight_request_querystring(countries_airports_df,origin_city,destinati
     except:
         pass
     
-    # careful here as how to select the main airport is now mere coincidence and in the future it will need a method to be selected
+    # careful here as how to select the main airport is now unique and in the future it will need a method 
+    # for the correct airport in the city to be selected
     if origin_airport_code != None:
         try:
             origin_airport_id = str(int(countries_airports_df.loc[countries_airports_df["city"].str.lower() == origin_city,"airport_entityId"].unique()))
@@ -480,74 +505,24 @@ async def request_flight_itineraries_async_multiple(querystrings_list):
 
 
 
-
-def create_itineraries_dataframe_aller_retour(itineraries_dict_list):
-
-    extracted_itinerary_info_list = []
-
-    for itinerary in itineraries_dict_list:
-        extracted_itinerary_info_list.append(extract_flight_info_aller_retour(itinerary))
-        
-    return pd.DataFrame(extracted_itinerary_info_list)
-
-
-
-
-def extract_flight_info_aller_retour(flight_dict):
-
-    flight_result_dict = {}
-
-    flight_result_dict_assigner = {
-        'date_query': lambda _: datetime.now(),
-        'score': lambda flight: float(flight['score']),
-        'price': lambda flight: int(flight['price']['formatted'].split()[0].replace(",","")),
-        'price_currency': lambda flight: flight['price']['formatted'].split()[1],
-        'duration_departure': lambda flight: int(flight['legs'][0]['durationInMinutes']),
-        'duration_return': lambda flight: int(flight['legs'][1]['durationInMinutes']),
-        'stops_departure': lambda flight: int(flight['legs'][0]['stopCount']),
-        'stops_return': lambda flight: int(flight['legs'][1]['stopCount']),
-        'departure_departure': lambda flight: pd.to_datetime(flight['legs'][0]['departure']),
-        'arrival_departure': lambda flight: pd.to_datetime(flight['legs'][0]['arrival']),
-        'departure_return': lambda flight: pd.to_datetime(flight['legs'][1]['departure']),
-        'arrival_return': lambda flight: pd.to_datetime(flight['legs'][1]['arrival']),
-        'company_departure': lambda flight: flight['legs'][0]['carriers']['marketing'][0]['name'],
-        'company_return': lambda flight: flight['legs'][1]['carriers']['marketing'][0]['name'],
-        'self_transfer': lambda flight: flight['isSelfTransfer'],
-        'fare_isChangeAllowed': lambda flight: flight['farePolicy']['isChangeAllowed'],
-        'fare_isPartiallyChangeable': lambda flight: flight['farePolicy']['isPartiallyChangeable'],
-        'fare_isCancellationAllowed': lambda flight: flight['farePolicy']['isCancellationAllowed'],
-        'fare_isPartiallyRefundable': lambda flight: flight['farePolicy']['isPartiallyRefundable'],
-        'origin_airport_departure': lambda flight: flight['legs'][0]['origin']['name'],
-        'destination_airport_departure': lambda flight: flight['legs'][0]['destination']['name'],
-        'origin_airport_return': lambda flight: flight['legs'][1]['origin']['name'],
-        'destination_airport_return': lambda flight: flight['legs'][1]['destination']['name']
-    }
-
-
-    for key, function in flight_result_dict_assigner.items():
-        try:
-            flight_result_dict[key] = function(flight_dict)
-        except KeyError:
-            flight_result_dict[key] = np.nan  
-
-
-    return flight_result_dict
-
 def create_itineraries_dataframe(itineraries_dict_list):
 
-    extracted_itinerary_info_list = []
+    extracted_itinerary_info_list = list()
 
     for itinerary in itineraries_dict_list:
         extracted_itinerary_info_list.append(extract_flight_info(itinerary))
         
     return pd.DataFrame(extracted_itinerary_info_list)
 
+
+
 def extract_flight_info(flight_dict):
 
     flight_result_dict = {}
 
     flight_result_dict_assigner = {
-        'date_query': lambda _: datetime.datetime.now(),
+        'itinerary_id': lambda flight: flight['id'],
+        'query_date': lambda _: datetime.datetime.now(),
         'score': lambda flight: float(flight['score']),
         'duration': lambda flight: int(flight['legs'][0]['durationInMinutes']),
         'price': lambda flight: int(flight['price']['formatted'].split()[0].replace(",","")),
@@ -557,10 +532,10 @@ def extract_flight_info(flight_dict):
         'arrival': lambda flight: pd.to_datetime(flight['legs'][0]['arrival']),
         'company': lambda flight: flight['legs'][0]['carriers']['marketing'][0]['name'],
         'self_transfer': lambda flight: flight['isSelfTransfer'],
-        'fare_isChangeAllowed': lambda flight: flight['farePolicy']['isChangeAllowed'],
-        'fare_isPartiallyChangeable': lambda flight: flight['farePolicy']['isPartiallyChangeable'],
-        'fare_isCancellationAllowed': lambda flight: flight['farePolicy']['isCancellationAllowed'],
-        'fare_isPartiallyRefundable': lambda flight: flight['farePolicy']['isPartiallyRefundable'],
+        'fare_is_change_allowed': lambda flight: flight['farePolicy']['isChangeAllowed'],
+        'fare_is_partially_changeable': lambda flight: flight['farePolicy']['isPartiallyChangeable'],
+        'fare_is_cancellation_allowed': lambda flight: flight['farePolicy']['isCancellationAllowed'],
+        'fare_is_partially_refundable': lambda flight: flight['farePolicy']['isPartiallyRefundable'],
         'score': lambda flight: float(flight['score']),
         'origin_airport': lambda flight: flight['legs'][0]['origin']['name'],
         'destination_airport': lambda flight: flight['legs'][0]['destination']['name'],
@@ -580,277 +555,17 @@ def extract_flight_info(flight_dict):
 
     return flight_result_dict
 
-# def request_flight_itineraries(countries_airports_df,origin_city,destination_city, date, n_adults= 1, n_children=0, n_infants=0, origin_airport_code=None, 
-#                                    destination_airport_code=None, cabin_class="economy",sort_by="best",currency="EUR"):
-    
-#     url = "https://sky-scrapper.p.rapidapi.com/api/v2/flights/searchFlightsComplete"
 
-#     cabin_class_list = ["economy","premium_economy","business","first"]
-
-#     cabin_class = cabin_class if cabin_class in cabin_class_list else "economy"
-
-#     try:
-#         origin_city_id = countries_airports_df.loc[countries_airports_df["city"].str.lower() == origin_city.lower(), "city_entityId"]
-
-#         origin_city_id = str(int(origin_city_id.iloc[0]))
-
-#     except:
-#         pass
-#     try:
-#         destination_city_id =  countries_airports_df.loc[countries_airports_df["city"].str.lower() == destination_city.lower(), "city_entityId"]
-
-#         destination_city_id = str(int(destination_city_id.iloc[0]))
-
-#     except:
-#         pass
-    
-#     if origin_airport_code != None:
-#         try:
-#             origin_airport_id = str(int(countries_airports_df.loc[countries_airports_df["city"].str.lower() == destination_city,"city_entityId"].unique()))
-#         except:
-#             pass
-#     if destination_airport_code != None:
-#         try:
-#             destination_airport_id = str(int(countries_airports_df.loc[countries_airports_df["city"].str.lower() == destination_city,"city_entityId"].unique()))
-#         except:
-#             pass
-
-#     sort_by_dict = {
-#         "best": "best",
-#         "cheapest": "price_high",
-#         "fastest": "fastest",
-#         "outbound_take_off": "outbound_take_off_time",
-#         "outbound_landing": "outbound_landing_time",
-#         "return_take_off": "return_take_off_time",
-#         "return_landing": "return_landing_time"
-#     }
-
-#     sort_by = sort_by_dict.get(sort_by,"best")
-
-#     querystring = {"originSkyId":origin_city,"destinationSkyId": destination_city,"originEntityId":origin_city_id,
-#                 "destinationEntityId":destination_city_id,"date": date,"cabinClass":"economy",
-#                 "adults":str(n_adults),"childrens":str(n_children),"infants": str(n_infants),"sortBy":sort_by,"currency":currency}
-
-#     headers = {
-#         "x-rapidapi-key": AIR_SCRAPPER_API_KEY,
-#         "x-rapidapi-host": "sky-scrapper.p.rapidapi.com"
-#     }
-
-#     response = requests.get(url, headers=headers, params=querystring)
-#     if response.status_code == 200:
-#         try:
-#             itineraries = response.json()["data"]["itineraries"]
-#         except:
-#             return np.nan
-#     else:
-#         raise ValueError
-
-
-#     return itineraries
-
-
-
-# def create_itineraries_dataframe(itineraries_dict_list):
-
-#     extracted_itinerary_info_list = []
-
-#     for itinerary in itineraries_dict_list:
-#         extracted_itinerary_info_list.append(extract_flight_info(itinerary))
-        
-#     return pd.DataFrame(extracted_itinerary_info_list)
-
-
-### Acommodations - booking - scraping
-
-# def build_booking_url_full(destination: str, checkin: str, checkout: str, adults: int = 1, children: int = 0,
-#                            rooms: int = 1, min_price: int = 1, max_price: int = 1, star_ratings: list = None, 
-#                            meal_plan: str = None, review_score: list = None, max_distance_meters: int = None):
-#     """
-#     Build a Booking.com search URL by including all parameter filters, 
-#     ensuring proper formatting for all parameters.
-
-#     Parameters:
-#     - destination (str): Destination city.
-#     - checkin (str): Check-in date in YYYY-MM-DD format.
-#     - checkout (str): Check-out date in YYYY-MM-DD format.
-#     - adults (int): Number of adults.
-#     - children (int): Number of children.
-#     - rooms (int): Number of rooms.
-#     - min_price (int): Minimum price in Euros.
-#     - max_price (int): Maximum price in Euros.
-#     - star_ratings (list): List of star ratings (e.g., [3, 4, 5]).
-#     - meal_plan (int): Meal plan (0 for no meal, 1 for breakfast, etc.).
-#     - review_score (list): List of review scores (e.g., [80, 90] for 8.0+ and 9.0+).
-#     - max_distance_meters (int): Maximum distance from city center in meters (e.g., 500).
-
-#     Returns:
-#     - str: A Booking.com search URL based on the specified filters.
-#     """
-    
-#     base_url = "https://www.booking.com/searchresults.es.html?"
-    
-#     # Start with basic search parameters (ensure no tuple formatting)
-#     url = f"{base_url}ss={destination}&checkin={checkin}&checkout={checkout}&group_adults={adults}&group_children={children}"
-    
-#     if rooms is not None:
-#        url.append(f"&no_rooms={rooms}")
-    
-#     if min_price is not None and max_price is not None:
-#         price_filter = f"price%3DEUR-{min_price}-{max_price}-1"
-#     elif min_price is not None:
-#         price_filter = f"price%3DEUR-{min_price}-1-1"
-#     elif max_price is not None:
-#         price_filter = f"price%3DEUR-{max_price}-1"
-#     else:
-#         price_filter = None
-
-#     # Construct 'nflt' parameter to add other filters
-#     nflt_filters = []
-    
-#     if price_filter:
-#         nflt_filters.append(price_filter)
-    
-#     if star_ratings:
-#         star_filter = '%3B'.join([f"class%3D{star}" for star in star_ratings])
-#         nflt_filters.append(star_filter)
-    
-#     meal_plan_options = {
-#             "breakfast": 1,
-#             "breakfast_dinner": 9,
-#             "kitchen": 999,
-#             "nothing": None
-#         }
-#     meal_plan_formatted = meal_plan_options.get(meal_plan, None)
-
-#     if meal_plan_formatted is not None:
-#         meal_plan_str = f"mealplan%3D{meal_plan_formatted}"
-#         nflt_filters.append(meal_plan_str)
-    
-#     if review_score:
-#         review_filter = '%3B'.join([f"review_score%3D{score}" for score in review_score])
-#         nflt_filters.append(review_filter)
-    
-#     if max_distance_meters is not None:
-#         distance_str = f"distance%3D{max_distance_meters}"
-#         nflt_filters.append(distance_str)
-    
-#     # Add all 'nflt' filters to URL
-#     if nflt_filters:
-#         url += f"&nflt={'%3B'.join(nflt_filters)}"
-    
-#     return url
-
-# def scrape_accommodations_from_page(page_soup, verbose=False):
-#     accommodation_scraper_dict = {
-#         "name": lambda card: card.find("div",{"data-testid":"title"}).text,
-#         "url": lambda card: card.find("a",{"data-testid":"title-link"})["href"],
-#         "price_currency": lambda card: card.find("span",{"data-testid":"price-and-discounted-price"}).text.split()[0],
-#         "total_price_amount": lambda card: card.find("span",{"data-testid":"price-and-discounted-price"}).text.split()[1].replace(".","").replace(",","."),
-#         "distance_city_center_km": lambda card: card.find("span",{"data-testid":"distance"}).text.split()[1].replace(".","").replace(",","."),
-#         "score": lambda card: card.find("div",{"data-testid": "review-score"}).find_all("div",recursive=False)[0].find("div").next_sibling.text.strip().replace(",","."),
-#         "n_comments": lambda card: card.find("div",{"data-testid": "review-score"}).find_all("div",recursive=False)[1].find("div").next_sibling.text.strip().split()[0].replace(".",""),
-#         "close_to_metro": lambda card: "Yes" if card.find("span",{"class":"f419a93f12"}) else "No",
-#         "sustainability_cert": lambda card: "Yes" if card.find("span",{"class":"abf093bdfe e6208ee469 f68ecd98ea"}) else "No",
-#         "room_type": lambda card: card.find("h4",{"class":"abf093bdfe e8f7c070a7"}).text,
-#         "double_bed": lambda card: "Yes" if any(["doble" in element.text for element in card.find_all("div",{"class":"abf093bdfe"})]) else "No",
-#         "single_bed": lambda card: "Yes" if any(["individual" in element.text for element in card.find_all("div",{"class":"abf093bdfe"})]) else "No",
-#         "free_cancellation": lambda card: "Yes" if any([element.text == "Cancelación gratis" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
-#         "breakfast_included": lambda card: "Yes" if any([element.text == "Cancelación gratis" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
-#         "pay_at_hotel": lambda card: "Yes" if any(['Sin pago por adelantado' in element.text for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
-#         "location_score": lambda card: card.find("span",{"class":"a3332d346a"}).text.split()[1].replace(",","."),
-#         "free_taxi": lambda card: "Yes" if any(["taxi gratis" in element.text.lower() for element in card.find_all("div",{"span":"b30f8eb2d6"})]) else "No"
-#     }
-
-#     accommodation_data_dict = {key: [] for key in accommodation_scraper_dict}
-
-#     for accommodation_card in page_soup.findAll("div", {"aria-label":"Alojamiento"}):
-#             for key, accommodation_scraper_function in accommodation_scraper_dict.items():
-#                 try:
-#                     accommodation_data_dict[key].append(accommodation_scraper_function(accommodation_card))
-#                 except Exception as e:
-#                     if verbose == True:
-#                         print(f"Error filling {key} due to {e}")
-#                     accommodation_data_dict[key].append(np.nan)
-
-#     return accommodation_data_dict
-
-
-# # dynamic html loading functions
-# def scroll_to_bottom(driver):
-#     last_height = driver.execute_script("return window.pageYOffset")
-
-#     while True:
-
-#         driver.execute_script('window.scrollBy(0, 2000)')
-#         time.sleep(0.2)
-        
-#         new_height =  driver.execute_script("return window.pageYOffset")
-#         if new_height == last_height:
-#             break
-#         last_height = new_height
-
-# def scroll_back_up(driver):
-#     driver.execute_script('window.scrollBy(0, -600)')
-#     time.sleep(0.2)
-
-# def click_load_more(driver, css_selector):
-#     try:
-#         button = driver.find_element("xpath",'//*[@id="bodyconstraint-inner"]/div[2]/div/div[2]/div[3]/div[2]/div[2]/div[3]/div[*]/button')
-#         button.click()
-#         return True
-#     except:
-#         return print("'Load more' not found")
-
-# def scroll_and_click_cycle(driver, css_selector):
-#     while True:
-#         scroll_to_bottom(driver)
-#         scroll_back_up(driver)
-#         if not click_load_more(driver, css_selector):
-#             break
-
-
-# def extract_all_accommodations(destination: str, checkin: str, checkout: str, adults: int = 1, children: int = 0,
-#                            rooms: int = 1, min_price: int = 1, max_price: int = 1, star_ratings: list = None, 
-#                            meal_plan: str = None, review_score: list = None, max_distance_meters: int = None, verbose=False):
-    
-
-#     accommodation_link = build_booking_url_full(
-#         destination=destination,
-#         checkin=checkin,
-#         checkout=checkout,
-#         adults=adults, 
-#         children=children, 
-#         rooms=rooms, 
-#         max_price=max_price, 
-#         star_ratings=star_ratings, 
-#         meal_plan=meal_plan,  
-#         review_score=review_score,  
-#         max_distance_meters=max_distance_meters 
-#     )
-
-#     # open driver
-#     driver = webdriver.Chrome()
-#     driver.maximize_window()
-#     driver.get(accommodation_link)
-
-#     # scroll and load more until bottom
-#     css_selector = "#bodyconstraint-inner > div:nth-child(8) > div > div.af5895d4b2 > div.df7e6ba27d > div.bcbf33c5c3 > div.dcf496a7b9.bb2746aad9 > div.d4924c9e74 > div.c82435a4b8.f581fde0b8 > button"
-#     scroll_and_click_cycle(driver, css_selector)
-
-#     # parse and get accommodations info
-#     html_page = driver.page_source
-
-#     page_soup = BeautifulSoup(html_page, "html.parser")
-    
-#     total_accommodation_df = pd.DataFrame(scrape_accommodations_from_page(page_soup,verbose=verbose))
-
-#     return total_accommodation_df
-
-
-### Accommodations - Booking - NEW VERSIONS
-
-def scrape_accommodations_from_page(page_soup, verbose=False):
+### ACCOMMODATIONS - Booking - Scraping
+def scrape_accommodations_from_page(page_soup, booking_url, verbose=False):
     accommodation_scraper_dict = {
+        "query_date": lambda _: datetime.datetime.now(),
+        "city": lambda _: re.findall(r"ss=([a-z]+)&", booking_url)[0],
+        "checkin": lambda _: re.findall(r"checkin=(\d{4}-\d{2}-\d{2})", booking_url)[0],
+        "checkout": lambda _: re.findall(r"checkout=(\d{4}-\d{2}-\d{2})", booking_url)[0],
+        "n_adults_search": lambda _: re.findall(r"group_adults=(\d+)", booking_url)[0],
+        "n_children_search":lambda _: re.findall(r"group_children=(\d+)", booking_url)[0],
+        "n_rooms_search": lambda _: re.findall(r"no_rooms=(\d+)", booking_url)[0],
         "name": lambda card: card.find("div",{"data-testid":"title"}).text,
         "url": lambda card: card.find("a",{"data-testid":"title-link"})["href"],
         "price_currency": lambda card: card.find("span",{"data-testid":"price-and-discounted-price"}).text.split()[0],
@@ -858,16 +573,16 @@ def scrape_accommodations_from_page(page_soup, verbose=False):
         "distance_city_center_km": lambda card: card.find("span",{"data-testid":"distance"}).text.split()[1].replace(".","").replace(",","."),
         "score": lambda card: card.find("div",{"data-testid": "review-score"}).find_all("div",recursive=False)[0].find("div").next_sibling.text.strip().replace(",","."),
         "n_comments": lambda card: card.find("div",{"data-testid": "review-score"}).find_all("div",recursive=False)[1].find("div").next_sibling.text.strip().split()[0].replace(".",""),
-        "close_to_metro": lambda card: "Yes" if card.find("span",{"class":"f419a93f12"}) else "No",
-        "sustainability_cert": lambda card: "Yes" if card.find("span",{"class":"abf093bdfe e6208ee469 f68ecd98ea"}) else "No",
+        "close_to_metro": lambda card: True if card.find("span",{"class":"f419a93f12"}) else False,
+        "sustainability_cert": lambda card: True if card.find("span",{"class":"abf093bdfe e6208ee469 f68ecd98ea"}) else False,
         "room_type": lambda card: card.find("h4",{"class":"abf093bdfe e8f7c070a7"}).text,
-        "double_bed": lambda card: "Yes" if any(["doble" in element.text for element in card.find_all("div",{"class":"abf093bdfe"})]) else "No",
-        "single_bed": lambda card: "Yes" if any(["individual" in element.text for element in card.find_all("div",{"class":"abf093bdfe"})]) else "No",
-        "free_cancellation": lambda card: "Yes" if any([element.text == "Cancelación gratis" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
-        "breakfast_included": lambda card: "Yes" if any([element.text == "Desayuno incluido" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
-        "pay_at_hotel": lambda card: "Yes" if any(['Sin pago por adelantado' in element.text for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else "No",
+        "double_bed": lambda card: True if any(["doble" in element.text for element in card.find_all("div",{"class":"abf093bdfe"})]) else False,
+        "single_bed": lambda card: True if any(["individual" in element.text for element in card.find_all("div",{"class":"abf093bdfe"})]) else False,
+        "free_cancellation": lambda card: True if any([element.text == "Cancelación gratis" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else False,
+        "breakfast_included": lambda card: True if any([element.text == "Cancelación gratis" for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else False,
+        "pay_at_hotel": lambda card: True if any(['Sin pago por adelantado' in element.text for element in card.find_all("div",{"class":"abf093bdfe d068504c75"})]) else False,
         "location_score": lambda card: card.find("span",{"class":"a3332d346a"}).text.split()[1].replace(",","."),
-        "free_taxi": lambda card: "Yes" if any(["taxi gratis" in element.text.lower() for element in card.find_all("div",{"span":"b30f8eb2d6"})]) else "No"
+        "free_taxi": lambda card: True if any(["taxi gratis" in element.text.lower() for element in card.find_all("div",{"span":"b30f8eb2d6"})]) else False
     }
 
     accommodation_data_dict = {key: [] for key in accommodation_scraper_dict}
@@ -885,13 +600,13 @@ def scrape_accommodations_from_page(page_soup, verbose=False):
 
 
 # dynamic html loading functions
-def scroll_to_bottom(driver):
+def scroll_to_bottom(driver,scroll_period):
     last_height = driver.execute_script("return window.pageYOffset")
 
     while True:
 
         driver.execute_script('window.scrollBy(0, 2000)')
-        time.sleep(0.2)
+        time.sleep(scroll_period)
         
         new_height =  driver.execute_script("return window.pageYOffset")
         if new_height == last_height:
@@ -902,19 +617,20 @@ def scroll_back_up(driver):
     driver.execute_script('window.scrollBy(0, -600)')
     time.sleep(0.2)
 
-def click_load_more(driver, css_selector):
+def click_load_more(driver):
     try:
-        button = driver.find_element("xpath",'//*[@id="bodyconstraint-inner"]/div[2]/div/div[2]/div[3]/div[2]/div[2]/div[3]/div[*]/button')
+        button = WebDriverWait(driver, 3).until(EC.element_to_be_clickable(("xpath",'//*[@id="bodyconstraint-inner"]/div[2]/div/div[2]/div[3]/div[2]/div[2]/div[3]/div[*]/button')))
         button.click()
+
         return True
     except:
-        return print("'Load more' not found")
+        return False
 
-def scroll_and_click_cycle(driver, css_selector):
+def scroll_and_click_cycle(driver,scroll_period):
     while True:
-        scroll_to_bottom(driver)
+        scroll_to_bottom(driver,scroll_period)
         scroll_back_up(driver)
-        if not click_load_more(driver, css_selector):
+        if not click_load_more(driver):
             break
 
 
@@ -927,7 +643,7 @@ def build_booking_urls(destinations_list: List[str], start_date: str, stay_durat
     
 
     start_date_datetime = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-    booking_url_list = []
+    booking_url_list = list()
     for destination in destinations_list:
         for step in range(n_steps):
             checkin = (start_date_datetime + datetime.timedelta(days=step*step_length)).strftime("%Y-%m-%d")
@@ -982,7 +698,7 @@ def build_booking_url_full(destination: str, checkin: str, checkout: str, adults
     url = f"{base_url}ss={destination}&checkin={checkin}&checkout={checkout}&group_adults={adults}&group_children={children}"
     
     if rooms is not None:
-       url.append(f"&no_rooms={rooms}")
+       url += f"&no_rooms={rooms}"
     
     if min_price is not None and max_price is not None:
         price_filter = f"price%3DEUR-{min_price}-{max_price}-1"
@@ -1026,24 +742,25 @@ def build_booking_url_full(destination: str, checkin: str, checkout: str, adults
     # Add all 'nflt' filters to URL
     if nflt_filters:
         url += f"&nflt={'%3B'.join(nflt_filters)}"
+
+    url += "&sr_view=list"
     
     return url
 
-def accommodations_booking_selenium_fetch_all_html_contents_concurrent(booking_url_list):
-    # Determine optimal max_workers, usually best around the number of CPUs for Selenium
-    max_workers = min(len(booking_url_list), os.cpu_count() or 1)
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(fetch_booking_html, booking_url) for booking_url in booking_url_list]
+def accommodations_booking_selenium_fetch_all_html_contents_concurrent(booking_url_list,max_threads=5,scroll_period=0.2):
+    # Determine optimal max_workers
+    with ThreadPoolExecutor(max_workers=max_threads) as executor:
+        futures = [executor.submit(fetch_booking_html_optimized, booking_url,scroll_period) for booking_url in booking_url_list]
 
         # Collect results as they complete
         html_contents_total = []
         for future in futures:
-            html_contents_total.extend(future.result())
+            html_contents_total.append(future.result())
 
-    return html_contents_total
+    return html_contents_total, booking_url_list
 
 
-def fetch_booking_html(booking_url):
+def fetch_booking_html(booking_url, scroll_period):
 
     # open driver
     driver = webdriver.Chrome()
@@ -1051,69 +768,74 @@ def fetch_booking_html(booking_url):
     driver.get(booking_url)
 
     # scroll and load more until bottom
-    css_selector = "#bodyconstraint-inner > div:nth-child(8) > div > div.af5895d4b2 > div.df7e6ba27d > div.bcbf33c5c3 > div.dcf496a7b9.bb2746aad9 > div.d4924c9e74 > div.c82435a4b8.f581fde0b8 > button"
-    scroll_and_click_cycle(driver, css_selector)
+    # css_selector = "#bodyconstraint-inner > div:nth-child(8) > div > div.af5895d4b2 > div.df7e6ba27d > div.bcbf33c5c3 > div.dcf496a7b9.bb2746aad9 > div.d4924c9e74 > div.c82435a4b8.f581fde0b8 > button"
+    scroll_and_click_cycle(driver)
 
     # fetch booking url html
     html_page = driver.page_source
 
     return html_page
 
-def fetch_booking_html_optimized(booking_url):
+def fetch_booking_html_optimized(booking_url, scroll_period):
 
     # ADD OPTIMIZATION OPTIONS HERE
+    # add optimization options
+    options = Options()
+    options.add_argument("--no-sandbox")      # Enables no-sandbox mode
+    options.add_argument("--disable-gpu")     # Disables GPU usage
+    # options.add_argument("--headless")        # Runs Chrome in headless mode
 
     # open driver
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(options=options)
     driver.maximize_window()
     driver.get(booking_url)
 
     # scroll and load more until bottom
     css_selector = "#bodyconstraint-inner > div:nth-child(8) > div > div.af5895d4b2 > div.df7e6ba27d > div.bcbf33c5c3 > div.dcf496a7b9.bb2746aad9 > div.d4924c9e74 > div.c82435a4b8.f581fde0b8 > button"
-    scroll_and_click_cycle(driver, css_selector)
+    scroll_and_click_cycle(driver, scroll_period)
 
     # fetch booking url html
     html_page = driver.page_source
 
     return html_page
 
-def accommodations_booking_soup_from_all_html_contents_parallel(html_contents_total, verbose=False):
+def accommodations_booking_soup_from_all_html_contents_parallel(html_contents_total, booking_urls_list, verbose=False):
     start_time = time.time()
-    with ProcessPoolExecutor() as executor:
+    with ThreadPoolExecutor() as executor:
 
-        page_dfs = list(executor.map(accommodations_booking_parse_single_page_wrapper, html_contents_total, [verbose] * len(html_contents_total)))
+        page_dfs = list(executor.map(accommodations_booking_parse_single_page_wrapper, html_contents_total, booking_urls_list, [verbose] * len(html_contents_total)))
 
     total_activities_df = pd.concat(page_dfs).reset_index(drop=True)
     end_time = time.time()
     print(f"The whole parallel Beautiful Soup process took {end_time-start_time}")
     return total_activities_df
 
-def accommodations_booking_parse_single_page_wrapper(page_html, verbose=False):
-    return accommodations_booking_parse_single_page(page_html, verbose=verbose)
+def accommodations_booking_parse_single_page_wrapper(page_html, booking_url, verbose=False):
+    return accommodations_booking_parse_single_page(page_html, booking_url,verbose=verbose)
 
 
-def accommodations_booking_parse_single_page(page_html, verbose=False):
+def accommodations_booking_parse_single_page(page_html,booking_url, verbose=False):
     page_soup = BeautifulSoup(page_html, "html.parser")
-    return pd.DataFrame(scrape_accommodations_from_page(page_soup, verbose=verbose))
+    return pd.DataFrame(scrape_accommodations_from_page(page_soup,booking_url, verbose=verbose))
 
 
-def accommodations_booking_extract_all_acommodations_selenium_concurrent(destinations_list: List[str], start_date: str, stay_duration: int = 2, step_length: int = 7, n_steps: int = 52, adults: int = 2, children: int = 0,
+def get_accommodations_booking(destinations_list: List[str], start_date: str, stay_duration: int = 2, step_length: int = 7, n_steps: int = 52, adults: int = 2, children: int = 0,
                            rooms: int = 1, max_price: int = 350, star_ratings: list = None, 
-                           meal_plan: str = None, review_score: list = None, max_distance_meters: int = None, verbose=False):
+                           meal_plan: str = None, review_score: list = None, max_distance_meters: int = 5000, max_threads = 5, scroll_period= 0.2,verbose=False):
     
     start_time = time.time()
 
     booking_urls_list = build_booking_urls(destinations_list = destinations_list, start_date= start_date, stay_duration =stay_duration , step_length = step_length, n_steps = n_steps, adults = adults, children = children,
-                           rooms = rooms, max_price = max_price, star_ratings = star_ratings, meal_plan = meal_plan, review_score = review_score, max_distance_meters = max_distance_meters, verbose=False)
+                           rooms = rooms, max_price = max_price, star_ratings = star_ratings, meal_plan = meal_plan, review_score = review_score, max_distance_meters = max_distance_meters)
     
     print(f"It took {time.time() - start_time} seconds to build the urls")
-    html_contents_total = accommodations_booking_selenium_fetch_all_html_contents_concurrent(booking_urls_list)
+    booking_html_contents_total, booking_urls_list = accommodations_booking_selenium_fetch_all_html_contents_concurrent(booking_urls_list, max_threads=max_threads, scroll_period=scroll_period)
     print(f"It took {time.time() - start_time} seconds for selenium to get the html contents")
 
     print("Now parsing with beautiful soup")
-    total_accommodations_df = accommodations_booking_soup_from_all_html_contents_parallel(html_contents_total,verbose=verbose)
-    print(f"It took {time.time() - start_time} seconds for beautiful soup parse all the contents")
+    total_accommodations_df = accommodations_booking_soup_from_all_html_contents_parallel(booking_html_contents_total, booking_urls_list,verbose=verbose)
     return total_accommodations_df
+        
         
 
 ### Activities - civitatis
@@ -1616,3 +1338,55 @@ def fetch_city_htmls_optimized(city_name, date_start, date_end):
     
     driver.quit()
     return html_contents_total, pages_urls_total
+
+
+### Weather - forecast
+async def fetch_forecast(city, latitude, longitude,params):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(BASE_URL_FORECAST, params={**params, "latitude": latitude, "longitude": longitude}) as response:
+            data = await response.json()
+            return {city: data.get("daily", {})}
+
+async def get_forecast(cities,params):
+    tasks = [fetch_forecast(city, lat, lon,params) for city, (lat, lon) in cities.items()]
+    results = await asyncio.gather(*tasks)
+    
+    forecast_data = {city: result[city] for result in results for city in result}
+    all_forecasts = []
+    for city, daily_data in forecast_data.items():
+        city_df = pd.DataFrame(daily_data)
+        city_df["city"] = city
+        all_forecasts.append(city_df)
+    
+    forecast_df = pd.concat(all_forecasts, ignore_index=True)
+    return forecast_df
+
+### Weather - history
+async def fetch_weather_data_city(url, city, latitude, longitude, params):
+    params.update({
+        "latitude": latitude,
+        "longitude": longitude
+    })
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, params=params) as response:
+            if response.status == 200:
+                data = await response.json()
+                if "daily" in data:
+                    df = pd.DataFrame(data["daily"])
+                    df["city"] = city  # Add city name to the DataFrame
+                    return df
+                else:
+                    print(f"No daily data for {city}")
+                    return pd.DataFrame()  
+            else:
+                print(f"Error {response.status} for {city}")
+                return pd.DataFrame()  
+
+
+async def get_weather_history_for_cities(cities_dict,params):
+    tasks = [fetch_weather_data_city(BASE_URL_ARCHIVE, city, lat, lon,params) for city, (lat, lon) in cities_dict.items()]
+    results = await asyncio.gather(*tasks)
+    
+    all_cities_df = pd.concat(results, ignore_index=True)
+    return all_cities_df

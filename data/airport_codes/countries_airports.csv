@@ -1,9 +1,9 @@
-,country,city,city_entityId,airport_skyId,airport_entityId,airport_name
-0,spain,Madrid,27544850,MAD,95565077,Madrid
-1,spain,Barcelona,27548283,BCN,95565085,Barcelona
-2,spain,Port Of Spain,27546011,POS,104120358,Port Of Spain
-3,spain,Málaga,27547484,AGP,95565095,Malaga
-4,spain,Seville,27547022,SVQ,95565089,Seville
-5,spain,Valencia,27547405,VLC,95565090,Valencia
-6,spain,Salamanca,27546391,SLM,95565100,Salamanca Matacan
-7,bilbao,Bilbao,27538794,BIO,95565104,Bilbao
+,country,city,city_entityId,airport_skyId,airport_entityId,airport_name,latitude,longitude
+0,spain,Madrid,27544850,MAD,95565077,Madrid,40.4167047,-3.7035825
+1,spain,Barcelona,27548283,BCN,95565085,Barcelona,41.3828939,2.1774322
+2,spain,Port Of Spain,27546011,POS,104120358,Port Of Spain,,
+3,spain,Málaga,27547484,AGP,95565095,Malaga,36.7213028,-4.4216366
+4,spain,Seville,27547022,SVQ,95565089,Seville,37.3886303,-5.9953403
+5,spain,Valencia,27547405,VLC,95565090,Valencia,39.4697065,-0.3763353
+6,spain,Ceuta,29952264,JCU,129054552,Ceuta,35.89442195,-5.355817352394269
+7,bilbao,Bilbao,27538794,BIO,95565104,Bilbao,43.2630018,-2.9350039
